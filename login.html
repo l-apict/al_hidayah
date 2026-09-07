@@ -4,20 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Admin - Masjid Jami' Al Hidayah</title>
+    <!-- Tailwind CSS & FontAwesome CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
 </head>
-<body>
-    <h2>Login Admin</h2>
-    <form id="login-form">
-        <label>Username:</label><br>
-        <input type="text" id="username" required><br><br>
-        
-        <label>Password:</label><br>
-        <input type="password" id="password" required><br><br>
-        
-        <button type="submit">Login</button>
-    </form>
+<body class="bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 border border-slate-100">
+        <!-- Header / Logo -->
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center mx-auto text-3xl mb-3 shadow-inner">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h2 class="text-2xl font-extrabold text-slate-800">Login Admin</h2>
+            <p class="text-sm text-slate-500 mt-1">Sistem Kas Masjid Jami' Al Hidayah</p>
+        </div>
+
+        <!-- Form Login -->
+        <form id="login-form" class="space-y-5">
+            <div>
+                <label class="block text-xs font-semibold uppercase text-slate-500 mb-2">Username</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                        <i class="fa-solid fa-user"></i>
+                    </span>
+                    <input type="text" id="username" placeholder="Masukkan username" required
+                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-slate-800 outline-none transition duration-200">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold uppercase text-slate-500 mb-2">Password</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+                        <i class="fa-solid fa-lock"></i>
+                    </span>
+                    <input type="password" id="password" placeholder="••••••••" required
+                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-slate-800 outline-none transition duration-200">
+                </div>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-emerald-600/30 transition duration-200 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-to-bracket"></i> Masuk Sekarang
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <a href="index.html" class="text-xs text-slate-400 hover:text-emerald-600 transition flex items-center justify-center gap-1">
+                <i class="fa-solid fa-arrow-left"></i> Kembali ke Halaman Utama
+            </a>
+        </div>
+    </div>
 
     <script>
         document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -25,7 +66,6 @@
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
 
-            // Cek ke tabel users di Supabase
             const { data, error } = await supabase
                 .from('users')
                 .select('*')
@@ -34,12 +74,11 @@
                 .maybeSingle();
 
             if (error) {
-                alert('Terjadi kesalahan database: ' + error.message);
+                alert('Terjadi kesalahan koneksi database: ' + error.message);
                 return;
             }
 
             if (data) {
-                alert('Login Berhasil!');
                 sessionStorage.setItem('isAdmin', 'true');
                 window.location.href = 'admin.html';
             } else {
