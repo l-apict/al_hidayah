@@ -3,117 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kas Masjid Jami' Al Hidayah</title>
-    <!-- Tailwind CSS & FontAwesome CDN -->
+    <title>Kas Masjid Jami' Al Hidayah - Transparansi Keuangan</title>
+    <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase & Config -->
+    <!-- Google Font: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Supabase SDK & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
-    <!-- Header Navbar -->
-    <header class="bg-emerald-700 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="bg-emerald-800 p-2.5 rounded-xl border border-emerald-500/30">
-                    <i class="fa-solid fa-mosque text-2xl text-emerald-300"></i>
+    <!-- Top Navigation -->
+    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/20">
+                    <i class="fa-solid fa-mosque text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight">Masjid Jami' Al Hidayah</h1>
-                    <p class="text-xs text-emerald-200">Laporan Transparansi Kas Masjid</p>
+                    <h1 class="font-bold text-slate-900 leading-tight">Masjid Jami' Al Hidayah</h1>
+                    <p class="text-xs text-slate-500 font-medium">Laporan Transparansi Kas</p>
                 </div>
             </div>
-            <a href="login.html" class="bg-emerald-800 hover:bg-emerald-900 text-emerald-100 px-4 py-2 rounded-lg text-sm font-medium transition duration-200 flex items-center gap-2 border border-emerald-600">
-                <i class="fa-solid fa-right-to-bracket"></i> Login Admin
-            </a>
+            <div class="flex items-center gap-3">
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Live Sync
+                </span>
+                <a href="login.html" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition shadow-sm">
+                    <i class="fa-solid fa-lock text-xs"></i>
+                    <span>Portal Admin</span>
+                </a>
+            </div>
         </div>
-    </header>
+    </nav>
 
     <!-- Main Content -->
-    <main class="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
         
-        <!-- Summary Cards (Saldo, Pemasukan, Pengeluaran) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Card Saldo Utama -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+        <!-- Hero Account Summary Card (Banking Style) -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-900 text-white p-6 sm:p-8 shadow-2xl shadow-emerald-950/20 border border-emerald-800/50">
+            <!-- Decorative Glow Backgrounds -->
+            <div class="absolute -right-12 -top-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute right-20 -bottom-20 w-80 h-80 bg-teal-400/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Saldo Kas</p>
-                    <h3 id="total-saldo" class="text-2xl font-extrabold text-slate-800">Rp 0</h3>
+                    <div class="flex items-center gap-2 text-emerald-300 text-xs font-semibold tracking-wider uppercase mb-2">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Total Saldo Kas Masjid</span>
+                    </div>
+                    <div class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-2" id="total-saldo">
+                        Rp 0
+                    </div>
+                    <p class="text-xs text-emerald-200/70 font-medium">
+                        Diperbarui otomatis secara real-time
+                    </p>
                 </div>
-                <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-wallet"></i>
-                </div>
-            </div>
 
-            <!-- Card Total Pemasukan -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Pemasukan</p>
-                    <h3 id="total-pemasukan" class="text-2xl font-extrabold text-emerald-600">Rp 0</h3>
-                </div>
-                <div class="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-arrow-down-left"></i>
-                </div>
-            </div>
+                <!-- Sub-metrics Chips -->
+                <div class="grid grid-cols-2 gap-3 w-full md:w-auto min-w-[280px]">
+                    <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10">
+                        <div class="flex items-center gap-2 text-emerald-300 text-xs font-medium mb-1">
+                            <div class="w-5 h-5 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
+                                <i class="fa-solid fa-arrow-down text-[10px]"></i>
+                            </div>
+                            <span>Total Pemasukan</span>
+                        </div>
+                        <p class="text-base sm:text-lg font-bold text-white" id="total-pemasukan">Rp 0</p>
+                    </div>
 
-            <!-- Card Total Pengeluaran -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
-                <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Pengeluaran</p>
-                    <h3 id="total-pengeluaran" class="text-2xl font-extrabold text-rose-600">Rp 0</h3>
-                </div>
-                <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-arrow-up-right"></i>
+                    <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/10">
+                        <div class="flex items-center gap-2 text-rose-300 text-xs font-medium mb-1">
+                            <div class="w-5 h-5 rounded-lg bg-rose-500/20 text-rose-300 flex items-center justify-center">
+                                <i class="fa-solid fa-arrow-up text-[10px]"></i>
+                            </div>
+                            <span>Total Pengeluaran</span>
+                        </div>
+                        <p class="text-base sm:text-lg font-bold text-white" id="total-pengeluaran">Rp 0</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tables Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Transactions Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
-            <!-- Tabel Pemasukan -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
-                <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                    <h2 class="font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-arrow-down text-emerald-500"></i> Riwayat Pemasukan
-                    </h2>
+            <!-- Pemasukan Table Card -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-circle-arrow-down"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Riwayat Pemasukan</h3>
+                            <p class="text-xs text-slate-500">Infaq, sedekah, dan donasi</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200/60 px-2.5 py-1 rounded-lg" id="count-pemasukan">0 Transaksi</span>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-slate-600">
-                        <thead class="text-xs text-slate-400 uppercase bg-slate-50 border-b border-slate-100">
-                            <tr>
-                                <th class="px-4 py-3">Tanggal</th>
-                                <th class="px-4 py-3">Keterangan</th>
-                                <th class="px-4 py-3 text-right">Jumlah</th>
+
+                <div class="p-4 flex-1 overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="text-slate-400 font-semibold border-b border-slate-100">
+                                <th class="pb-3 pl-2">TANGGAL</th>
+                                <th class="pb-3">KETERANGAN</th>
+                                <th class="pb-3 pr-2 text-right">JUMLAH</th>
                             </tr>
                         </thead>
-                        <tbody id="tbody-pemasukan" class="divide-y divide-slate-100">
-                            <tr><td colspan="3" class="px-4 py-6 text-center text-slate-400">Memuat data...</td></tr>
+                        <tbody id="table-pemasukan" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                            <tr>
+                                <td colspan="3" class="py-8 text-center text-slate-400">Memuat data...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Tabel Pengeluaran -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
-                <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                    <h2 class="font-bold text-slate-700 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-arrow-up text-rose-500"></i> Riwayat Pengeluaran
-                    </h2>
+            <!-- Pengeluaran Table Card -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden flex flex-col">
+                <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-circle-arrow-up"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Riwayat Pengeluaran</h3>
+                            <p class="text-xs text-slate-500">Operasional & perawatan masjid</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200/60 px-2.5 py-1 rounded-lg" id="count-pengeluaran">0 Transaksi</span>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-slate-600">
-                        <thead class="text-xs text-slate-400 uppercase bg-slate-50 border-b border-slate-100">
-                            <tr>
-                                <th class="px-4 py-3">Tanggal</th>
-                                <th class="px-4 py-3">Keterangan</th>
-                                <th class="px-4 py-3 text-right">Jumlah</th>
+
+                <div class="p-4 flex-1 overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="text-slate-400 font-semibold border-b border-slate-100">
+                                <th class="pb-3 pl-2">TANGGAL</th>
+                                <th class="pb-3">KETERANGAN</th>
+                                <th class="pb-3 pr-2 text-right">JUMLAH</th>
                             </tr>
                         </thead>
-                        <tbody id="tbody-pengeluaran" class="divide-y divide-slate-100">
-                            <tr><td colspan="3" class="px-4 py-6 text-center text-slate-400">Memuat data...</td></tr>
+                        <tbody id="table-pengeluaran" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                            <tr>
+                                <td colspan="3" class="py-8 text-center text-slate-400">Memuat data...</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -123,65 +164,89 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-400">
-        <p>© 2026 Kas Masjid Jami' Al Hidayah. Transparan & Akuntabel.</p>
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12">
+        <div class="max-w-6xl mx-auto px-4 text-center text-xs text-slate-500">
+            <p>&copy; 2026 Kas Masjid Jami' Al Hidayah. Transparan, Akuntabel, dan Real-time.</p>
+        </div>
     </footer>
 
+    <!-- Script Fetch Data -->
     <script>
-        const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
-
-        async function muatData() {
-            // Fetch Pemasukan
-            const { data: pemasukan } = await db.from('pemasukan').select('*').order('tanggal', { ascending: false });
-            // Fetch Pengeluaran
-            const { data: pengeluaran } = await db.from('pengeluaran').select('*').order('tanggal', { ascending: false });
-
-            let totMasuk = 0;
-            let totKeluar = 0;
-
-            // Render Pemasukan
-            const tbodyMasuk = document.getElementById('tbody-pemasukan');
-            tbodyMasuk.innerHTML = '';
-            if (pemasukan && pemasukan.length > 0) {
-                pemasukan.forEach(row => {
-                    totMasuk += Number(row.jumlah);
-                    tbodyMasuk.innerHTML += `
-                        <tr class="hover:bg-slate-50/80 transition">
-                            <td class="px-4 py-3 font-medium whitespace-nowrap text-slate-500">${row.tanggal}</td>
-                            <td class="px-4 py-3">${row.keterangan}</td>
-                            <td class="px-4 py-3 text-right font-semibold text-emerald-600">${formatRupiah(row.jumlah)}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                tbodyMasuk.innerHTML = `<tr><td colspan="3" class="px-4 py-6 text-center text-slate-400">Belum ada data pemasukan.</td></tr>`;
-            }
-
-            // Render Pengeluaran
-            const tbodyKeluar = document.getElementById('tbody-pengeluaran');
-            tbodyKeluar.innerHTML = '';
-            if (pengeluaran && pengeluaran.length > 0) {
-                pengeluaran.forEach(row => {
-                    totKeluar += Number(row.jumlah);
-                    tbodyKeluar.innerHTML += `
-                        <tr class="hover:bg-slate-50/80 transition">
-                            <td class="px-4 py-3 font-medium whitespace-nowrap text-slate-500">${row.tanggal}</td>
-                            <td class="px-4 py-3">${row.keterangan}</td>
-                            <td class="px-4 py-3 text-right font-semibold text-rose-600">${formatRupiah(row.jumlah)}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                tbodyKeluar.innerHTML = `<tr><td colspan="3" class="px-4 py-6 text-center text-slate-400">Belum ada data pengeluaran.</td></tr>`;
-            }
-
-            // Update Cards
-            document.getElementById('total-pemasukan').innerText = formatRupiah(totMasuk);
-            document.getElementById('total-pengeluaran').innerText = formatRupiah(totKeluar);
-            document.getElementById('total-saldo').innerText = formatRupiah(totMasuk - totKeluar);
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(number || 0);
         }
 
-        muatData();
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Fetch Pemasukan & Pengeluaran dari Supabase (pakai variabel 'db')
+                const { data: pemasukan } = await db
+                    .from('pemasukan')
+                    .select('*')
+                    .order('tanggal', { ascending: false });
+
+                const { data: pengeluaran } = await db
+                    .from('pengeluaran')
+                    .select('*')
+                    .order('tanggal', { ascending: false });
+
+                // Kalkulasi Total
+                const totalMasuk = (pemasukan || []).reduce((acc, item) => acc + (Number(item.jumlah) || 0), 0);
+                const totalKeluar = (pengeluaran || []).reduce((acc, item) => acc + (Number(item.jumlah) || 0), 0);
+                const totalSaldo = totalMasuk - totalKeluar;
+
+                // Render Angka Utama
+                document.getElementById('total-saldo').innerText = formatRupiah(totalSaldo);
+                document.getElementById('total-pemasukan').innerText = formatRupiah(totalMasuk);
+                document.getElementById('total-pengeluaran').innerText = formatRupiah(totalKeluar);
+
+                // Render Badge Jumlah Transaksi
+                document.getElementById('count-pemasukan').innerText = `${pemasukan ? pemasukan.length : 0} Transaksi`;
+                document.getElementById('count-pengeluaran').innerText = `${pengeluaran ? pengeluaran.length : 0} Transaksi`;
+
+                // Render Tabel Pemasukan
+                const tbodyMasuk = document.getElementById('table-pemasukan');
+                if (pemasukan && pemasukan.length > 0) {
+                    tbodyMasuk.innerHTML = pemasukan.map(item => `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="py-3 pl-2 text-slate-500 font-normal whitespace-nowrap">${formatDate(item.tanggal)}</td>
+                            <td class="py-3 pr-2 font-medium text-slate-800">${item.keterangan || '-'}</td>
+                            <td class="py-3 pr-2 text-right font-bold text-emerald-600 whitespace-nowrap">+${formatRupiah(item.jumlah)}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbodyMasuk.innerHTML = `<tr><td colspan="3" class="py-8 text-center text-slate-400">Belum ada data pemasukan.</td></tr>`;
+                }
+
+                // Render Tabel Pengeluaran
+                const tbodyKeluar = document.getElementById('table-pengeluaran');
+                if (pengeluaran && pengeluaran.length > 0) {
+                    tbodyKeluar.innerHTML = pengeluaran.map(item => `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="py-3 pl-2 text-slate-500 font-normal whitespace-nowrap">${formatDate(item.tanggal)}</td>
+                            <td class="py-3 pr-2 font-medium text-slate-800">${item.keterangan || '-'}</td>
+                            <td class="py-3 pr-2 text-right font-bold text-rose-600 whitespace-nowrap">-${formatRupiah(item.jumlah)}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbodyKeluar.innerHTML = `<tr><td colspan="3" class="py-8 text-center text-slate-400">Belum ada data pengeluaran.</td></tr>`;
+                }
+
+            } catch (e) {
+                console.error('Error saat memuat data:', e);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
     </script>
 </body>
 </html>
