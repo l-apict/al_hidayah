@@ -156,7 +156,7 @@
 
         // Fetch Donatur List
         async function loadDonaturOptions() {
-            const { data, error } = await supabase.from('donatur').select('id, nama_donatur');
+            const { data, error } = await db.from('donatur').select('id, nama_donatur');
             if (!error && data) {
                 const select = document.getElementById('select-donatur');
                 select.innerHTML = '<option value="">-- Hamba Allah / Umum --</option>';
@@ -170,7 +170,7 @@
         // Submit Donatur
         document.getElementById('form-donatur').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const { error } = await supabase.from('donatur').insert([{
+            const { error } = await db.from('donatur').insert([{
                 nama_donatur: document.getElementById('nama_donatur').value,
                 no_telepon: document.getElementById('no_telepon').value,
                 alamat: document.getElementById('alamat').value
