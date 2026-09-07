@@ -188,7 +188,7 @@
         document.getElementById('form-pemasukan').addEventListener('submit', async (e) => {
             e.preventDefault();
             const donaturId = document.getElementById('select-donatur').value || null;
-            const { error } = await supabase.from('pemasukan').insert([{
+            const { error } = await db.from('pemasukan').insert([{
                 tanggal: document.getElementById('tgl_pemasukan').value,
                 keterangan: document.getElementById('ket_pemasukan').value,
                 jumlah: document.getElementById('jml_pemasukan').value,
@@ -205,7 +205,7 @@
         // Submit Pengeluaran
         document.getElementById('form-pengeluaran').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const { error } = await supabase.from('pengeluaran').insert([{
+            const { error } = await db.from('pengeluaran').insert([{
                 tanggal: document.getElementById('tgl_pengeluaran').value,
                 keterangan: document.getElementById('ket_pengeluaran').value,
                 jumlah: document.getElementById('jml_pengeluaran').value
