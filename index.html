@@ -4,68 +4,184 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kas Masjid Jami' Al Hidayah</title>
-    <!-- Memuat Supabase dari CDN -->
+    <!-- Tailwind CSS & FontAwesome CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #4CAF50; color: white; }
-        .header { display: flex; justify-content: space-between; align-items: center; }
-    </style>
+    <script src="config.js"></script>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
 
-    <div class="header">
-        <h1>Transparansi Kas Masjid Jami' Al Hidayah</h1>
-        <a href="login.html">Login Admin</a>
-    </div>
+    <!-- Header Navbar -->
+    <header class="bg-emerald-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-800 p-2.5 rounded-xl border border-emerald-500/30">
+                    <i class="fa-solid fa-mosque text-2xl text-emerald-300"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Masjid Jami' Al Hidayah</h1>
+                    <p class="text-xs text-emerald-200">Laporan Transparansi Kas Masjid</p>
+                </div>
+            </div>
+            <a href="login.html" class="bg-emerald-800 hover:bg-emerald-900 text-emerald-100 px-4 py-2 rounded-lg text-sm font-medium transition duration-200 flex items-center gap-2 border border-emerald-600">
+                <i class="fa-solid fa-right-to-bracket"></i> Login Admin
+            </a>
+        </div>
+    </header>
 
-    <h2>Daftar Pemasukan Terakhir</h2>
-    <table id="tabel-pemasukan">
-        <thead>
-            <tr>
-                <th>Tanggal</th>
-                <th>Keterangan</th>
-                <th>Jumlah (Rp)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Data akan dimuat dengan JavaScript -->
-        </tbody>
-    </table>
+    <!-- Main Content -->
+    <main class="max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
+        
+        <!-- Summary Cards (Saldo, Pemasukan, Pengeluaran) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- Card Saldo Utama -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Saldo Kas</p>
+                    <h3 id="total-saldo" class="text-2xl font-extrabold text-slate-800">Rp 0</h3>
+                </div>
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+            </div>
+
+            <!-- Card Total Pemasukan -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Pemasukan</p>
+                    <h3 id="total-pemasukan" class="text-2xl font-extrabold text-emerald-600">Rp 0</h3>
+                </div>
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-arrow-down-left"></i>
+                </div>
+            </div>
+
+            <!-- Card Total Pengeluaran -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Total Pengeluaran</p>
+                    <h3 id="total-pengeluaran" class="text-2xl font-extrabold text-rose-600">Rp 0</h3>
+                </div>
+                <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-arrow-up-right"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- Tabel Pemasukan -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                    <h2 class="font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-arrow-down text-emerald-500"></i> Riwayat Pemasukan
+                    </h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-400 uppercase bg-slate-50 border-b border-slate-100">
+                            <tr>
+                                <th class="px-4 py-3">Tanggal</th>
+                                <th class="px-4 py-3">Keterangan</th>
+                                <th class="px-4 py-3 text-right">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-pemasukan" class="divide-y divide-slate-100">
+                            <tr><td colspan="3" class="px-4 py-6 text-center text-slate-400">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabel Pengeluaran -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                    <h2 class="font-bold text-slate-700 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-arrow-up text-rose-500"></i> Riwayat Pengeluaran
+                    </h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-400 uppercase bg-slate-50 border-b border-slate-100">
+                            <tr>
+                                <th class="px-4 py-3">Tanggal</th>
+                                <th class="px-4 py-3">Keterangan</th>
+                                <th class="px-4 py-3 text-right">Jumlah</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-pengeluaran" class="divide-y divide-slate-100">
+                            <tr><td colspan="3" class="px-4 py-6 text-center text-slate-400">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-400">
+        <p>© 2026 Kas Masjid Jami' Al Hidayah. Transparan & Akuntabel.</p>
+    </footer>
 
     <script>
-        // Inisialisasi Supabase
-        const supabaseUrl = 'https://khscktqunxezfeibzotr.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtoc2NrdHF1bnhlemZlaWJ6b3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3MzQ3NjgsImV4cCI6MjEwNDMxMDc2OH0.C_O1yzywEhDcTpWCUcL1EtqDGJj2NiHwgwbYLZBKrX4';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        const formatRupiah = (number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
 
-        async function muatPemasukan() {
-            const { data, error } = await supabase
-                .from('pemasukan')
-                .select('*')
-                .order('tanggal', { ascending: false });
+        async function muatData() {
+            // Fetch Pemasukan
+            const { data: pemasukan } = await supabase.from('pemasukan').select('*').order('tanggal', { ascending: false });
+            // Fetch Pengeluaran
+            const { data: pengeluaran } = await supabase.from('pengeluaran').select('*').order('tanggal', { ascending: false });
 
-            if (error) {
-                console.error('Error fetching data:', error);
-                return;
+            let totMasuk = 0;
+            let totKeluar = 0;
+
+            // Render Pemasukan
+            const tbodyMasuk = document.getElementById('tbody-pemasukan');
+            tbodyMasuk.innerHTML = '';
+            if (pemasukan && pemasukan.length > 0) {
+                pemasukan.forEach(row => {
+                    totMasuk += Number(row.jumlah);
+                    tbodyMasuk.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="px-4 py-3 font-medium whitespace-nowrap text-slate-500">${row.tanggal}</td>
+                            <td class="px-4 py-3">${row.keterangan}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-emerald-600">${formatRupiah(row.jumlah)}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tbodyMasuk.innerHTML = `<tr><td colspan="3" class="px-4 py-6 text-center text-slate-400">Belum ada data pemasukan.</td></tr>`;
             }
 
-            const tbody = document.querySelector('#tabel-pemasukan tbody');
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row.tanggal}</td>
-                    <td>${row.keterangan}</td>
-                    <td>${new Intl.NumberFormat('id-ID').format(row.jumlah)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+            // Render Pengeluaran
+            const tbodyKeluar = document.getElementById('tbody-pengeluaran');
+            tbodyKeluar.innerHTML = '';
+            if (pengeluaran && pengeluaran.length > 0) {
+                pengeluaran.forEach(row => {
+                    totKeluar += Number(row.jumlah);
+                    tbodyKeluar.innerHTML += `
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="px-4 py-3 font-medium whitespace-nowrap text-slate-500">${row.tanggal}</td>
+                            <td class="px-4 py-3">${row.keterangan}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-rose-600">${formatRupiah(row.jumlah)}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tbodyKeluar.innerHTML = `<tr><td colspan="3" class="px-4 py-6 text-center text-slate-400">Belum ada data pengeluaran.</td></tr>`;
+            }
+
+            // Update Cards
+            document.getElementById('total-pemasukan').innerText = formatRupiah(totMasuk);
+            document.getElementById('total-pengeluaran').innerText = formatRupiah(totKeluar);
+            document.getElementById('total-saldo').innerText = formatRupiah(totMasuk - totKeluar);
         }
 
-        // Panggil fungsi saat halaman dimuat
-        muatPemasukan();
+        muatData();
     </script>
 </body>
 </html>
