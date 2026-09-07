@@ -132,9 +132,9 @@
 
         async function muatData() {
             // Fetch Pemasukan
-            const { data: pemasukan } = await supabase.from('pemasukan').select('*').order('tanggal', { ascending: false });
+            const { data: pemasukan } = await db.from('pemasukan').select('*').order('tanggal', { ascending: false });
             // Fetch Pengeluaran
-            const { data: pengeluaran } = await supabase.from('pengeluaran').select('*').order('tanggal', { ascending: false });
+            const { data: pengeluaran } = await db.from('pengeluaran').select('*').order('tanggal', { ascending: false });
 
             let totMasuk = 0;
             let totKeluar = 0;
