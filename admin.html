@@ -2,60 +2,162 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Kas Masjid</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Kas Masjid Jami' Al Hidayah</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        .section { margin-bottom: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        h3 { margin-top: 0; color: #2c3e50; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button { margin-top: 15px; padding: 10px 15px; background-color: #27ae60; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        button.logout { background-color: #e74c3c; float: right; }
+    </style>
 </head>
 <body>
-    <h2>Input Pemasukan Kas Masjid</h2>
-    <form id="form-pemasukan">
-        <label>Tanggal:</label><br>
-        <input type="date" id="tanggal" required><br><br>
+    <div class="container">
+        <button class="logout" onclick="logout()">Logout</button>
+        <h2>Dashboard Admin Kas Masjid</h2>
+        <hr><br>
 
-        <label>Keterangan:</label><br>
-        <input type="text" id="keterangan" required><br><br>
+        <!-- Form 1: Input Donatur -->
+        <div class="section">
+            <h3>1. Tambah Data Donatur</h3>
+            <form id="form-donatur">
+                <label>Nama Donatur:</label>
+                <input type="text" id="nama_donatur" placeholder="Contoh: H. Ahmad" required>
+                
+                <label>No. Telepon:</label>
+                <input type="text" id="no_telepon" placeholder="08123456789">
+                
+                <label>Alamat:</label>
+                <textarea id="alamat" rows="2"></textarea>
+                
+                <button type="submit">Simpan Donatur</button>
+            </form>
+        </div>
 
-        <label>Jumlah (Rp):</label><br>
-        <input type="number" id="jumlah" required><br><br>
+        <!-- Form 2: Input Pemasukan -->
+        <div class="section">
+            <h3>2. Input Pemasukan Kas</h3>
+            <form id="form-pemasukan">
+                <label>Tanggal:</label>
+                <input type="date" id="tgl_pemasukan" required>
 
-        <button type="submit">Simpan Data</button>
-    </form>
-    <br>
-    <button onclick="logout()">Logout</button>
+                <label>Pilih Donatur (Opsional):</label>
+                <select id="select-donatur">
+                    <option value="">-- Hamba Allah / Umum --</option>
+                </select>
+
+                <label>Keterangan:</label>
+                <input type="text" id="ket_pemasukan" placeholder="Contoh: Infak Shalat Jumat" required>
+
+                <label>Jumlah (Rp):</label>
+                <input type="number" id="jml_pemasukan" required>
+
+                <button type="submit">Simpan Pemasukan</button>
+            </form>
+        </div>
+
+        <!-- Form 3: Input Pengeluaran -->
+        <div class="section">
+            <h3>3. Input Pengeluaran Kas</h3>
+            <form id="form-pengeluaran">
+                <label>Tanggal:</label>
+                <input type="date" id="tgl_pengeluaran" required>
+
+                <label>Keterangan Pengeluaran:</label>
+                <input type="text" id="ket_pengeluaran" placeholder="Contoh: Pembayaran Listrik Masjid" required>
+
+                <label>Jumlah (Rp):</label>
+                <input type="number" id="jml_pengeluaran" required>
+
+                <button type="submit">Simpan Pengeluaran</button>
+            </form>
+        </div>
+    </div>
 
     <script>
         // Proteksi Halaman Admin
         if (sessionStorage.getItem('isAdmin') !== 'true') {
-            alert('Anda harus login!');
             window.location.href = 'login.html';
         }
 
-        const supabaseUrl = 'https://khscktqunxezfeibzotr.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtoc2NrdHF1bnhlemZlaWJ6b3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3MzQ3NjgsImV4cCI6MjEwNDMxMDc2OH0.C_O1yzywEhDcTpWCUcL1EtqDGJj2NiHwgwbYLZBKrX4';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        // Set tanggal hari ini sebagai default
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('tgl_pemasukan').value = today;
+        document.getElementById('tgl_pengeluaran').value = today;
 
+        // Load daftar donatur ke dropdown
+        async function loadDonaturOptions() {
+            const { data, error } = await supabase.from('donatur').select('id, nama_donatur');
+            if (!error && data) {
+                const select = document.getElementById('select-donatur');
+                select.innerHTML = '<option value="">-- Hamba Allah / Umum --</option>';
+                data.forEach(d => {
+                    select.innerHTML += `<option value="${d.id}">${d.nama_donatur}</option>`;
+                });
+            }
+        }
+        loadDonaturOptions();
+
+        // Submit Donatur
+        document.getElementById('form-donatur').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const { error } = await supabase.from('donatur').insert([{
+                nama_donatur: document.getElementById('nama_donatur').value,
+                no_telepon: document.getElementById('no_telepon').value,
+                alamat: document.getElementById('alamat').value
+            }]);
+
+            if (error) alert('Gagal: ' + error.message);
+            else {
+                alert('Donatur berhasil ditambahkan!');
+                document.getElementById('form-donatur').reset();
+                loadDonaturOptions();
+            }
+        });
+
+        // Submit Pemasukan
         document.getElementById('form-pemasukan').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const tgl = document.getElementById('tanggal').value;
-            const ket = document.getElementById('keterangan').value;
-            const jml = document.getElementById('jumlah').value;
+            const donaturId = document.getElementById('select-donatur').value || null;
+            const { error } = await supabase.from('pemasukan').insert([{
+                tanggal: document.getElementById('tgl_pemasukan').value,
+                keterangan: document.getElementById('ket_pemasukan').value,
+                jumlah: document.getElementById('jml_pemasukan').value,
+                id_donatur: donaturId
+            }]);
 
-            const { data, error } = await supabase
-                .from('pemasukan')
-                .insert([
-                    { tanggal: tgl, keterangan: ket, jumlah: jml }
-                ]);
-
-            if (error) {
-                alert('Gagal menyimpan data: ' + error.message);
-            } else {
-                alert('Data berhasil disimpan!');
+            if (error) alert('Gagal: ' + error.message);
+            else {
+                alert('Pemasukan berhasil disimpan!');
                 document.getElementById('form-pemasukan').reset();
+            }
+        });
+
+        // Submit Pengeluaran
+        document.getElementById('form-pengeluaran').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const { error } = await supabase.from('pengeluaran').insert([{
+                tanggal: document.getElementById('tgl_pengeluaran').value,
+                keterangan: document.getElementById('ket_pengeluaran').value,
+                jumlah: document.getElementById('jml_pengeluaran').value
+            }]);
+
+            if (error) alert('Gagal: ' + error.message);
+            else {
+                alert('Pengeluaran berhasil disimpan!');
+                document.getElementById('form-pengeluaran').reset();
             }
         });
 
         function logout() {
             sessionStorage.removeItem('isAdmin');
-            window.location.href = 'index.html';
+            window.location.href = 'login.html';
         }
     </script>
 </body>
