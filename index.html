@@ -1,1 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kas Masjid Jami' Al Hidayah</title>
+    <!-- Memuat Supabase dari CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        .header { display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
 
+    <div class="header">
+        <h1>Transparansi Kas Masjid Jami' Al Hidayah</h1>
+        <a href="login.html">Login Admin</a>
+    </div>
+
+    <h2>Daftar Pemasukan Terakhir</h2>
+    <table id="tabel-pemasukan">
+        <thead>
+            <tr>
+                <th>Tanggal</th>
+                <th>Keterangan</th>
+                <th>Jumlah (Rp)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data akan dimuat dengan JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        // Inisialisasi Supabase
+        const supabaseUrl = 'https://khscktqunxezfeibzotr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtoc2NrdHF1bnhlemZlaWJ6b3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3MzQ3NjgsImV4cCI6MjEwNDMxMDc2OH0.C_O1yzywEhDcTpWCUcL1EtqDGJj2NiHwgwbYLZBKrX4';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function muatPemasukan() {
+            const { data, error } = await supabase
+                .from('pemasukan')
+                .select('*')
+                .order('tanggal', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching data:', error);
+                return;
+            }
+
+            const tbody = document.querySelector('#tabel-pemasukan tbody');
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.tanggal}</td>
+                    <td>${row.keterangan}</td>
+                    <td>${new Intl.NumberFormat('id-ID').format(row.jumlah)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Panggil fungsi saat halaman dimuat
+        muatPemasukan();
+    </script>
+</body>
+</html>
