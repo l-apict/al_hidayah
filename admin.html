@@ -12,13 +12,59 @@
     <!-- Supabase SDK & Config -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
+    
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* CSS KHUSUS CETAK / PDF (DIBUAT SIMPEL & FORMAL) */
         @media print {
-            nav, button, form, .no-print { display: none !important; }
-            body { background: white !important; color: black !important; }
-            .shadow-sm, .shadow-lg, .shadow-2xl { box-shadow: none !important; }
-            .border { border: 1px solid #e2e8f0 !important; }
+            nav, button, form, .no-print, .tab-nav { 
+                display: none !important; 
+            }
+            body { 
+                background: white !important; 
+                color: #0f172a !important; 
+                padding: 0 !important; 
+                margin: 0 !important;
+            }
+            .print-area { 
+                box-shadow: none !important; 
+                border: none !important; 
+                padding: 0 !important; 
+                margin: 0 !important;
+            }
+            .print-header { 
+                display: block !important; 
+                text-align: center; 
+                margin-bottom: 20px; 
+                border-b: 2px solid #000;
+                padding-bottom: 10px;
+            }
+            .summary-box {
+                background: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+                box-shadow: none !important;
+            }
+            table { 
+                width: 100% !important; 
+                border-collapse: collapse !important; 
+                margin-top: 10px;
+            }
+            th, td { 
+                border: 1px solid #cbd5e1 !important; 
+                padding: 8px !important; 
+                text-align: left;
+            }
+            th { 
+                background-color: #f1f5f9 !important; 
+                color: #000 !important; 
+            }
+            .badge-print {
+                background: transparent !important;
+                border: none !important;
+                padding: 0 !important;
+                font-weight: bold;
+            }
         }
     </style>
     <!-- Auth Guard Check -->
@@ -31,7 +77,7 @@
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
     <!-- Navbar Admin -->
-    <nav class="bg-slate-900 text-white sticky top-0 z-40 border-b border-slate-800 shadow-md">
+    <nav class="bg-slate-900 text-white sticky top-0 z-40 border-b border-slate-800 shadow-md no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-bold shadow-md shadow-emerald-500/20">
@@ -56,111 +102,88 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
 
-        <!-- Summary Cards Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-gradient-to-br from-emerald-900 to-teal-950 text-white p-5 rounded-2xl shadow-lg border border-emerald-800/50">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-semibold text-emerald-300 uppercase tracking-wider">Total Saldo Kas</span>
-                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-xs">
-                        <i class="fa-solid fa-wallet"></i>
-                    </div>
-                </div>
-                <div class="text-2xl font-extrabold" id="stat-saldo">Rp 0</div>
+        <!-- Ringkasan Atas (Disembunyikan saat cetak) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
+            <div class="bg-slate-900 text-white p-4 rounded-xl shadow-sm border border-slate-800">
+                <span class="text-xs text-slate-400 uppercase font-semibold">Total Saldo Kas</span>
+                <div class="text-xl font-bold mt-1 text-emerald-400" id="stat-saldo">Rp 0</div>
             </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Pemasukan</span>
-                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">
-                        <i class="fa-solid fa-arrow-down"></i>
-                    </div>
-                </div>
-                <div class="text-2xl font-extrabold text-slate-800" id="stat-pemasukan">Rp 0</div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                <span class="text-xs text-slate-500 uppercase font-semibold">Total Pemasukan</span>
+                <div class="text-xl font-bold mt-1 text-slate-800" id="stat-pemasukan">Rp 0</div>
             </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Pengeluaran</span>
-                    <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-xs">
-                        <i class="fa-solid fa-arrow-up"></i>
-                    </div>
-                </div>
-                <div class="text-2xl font-extrabold text-slate-800" id="stat-pengeluaran">Rp 0</div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                <span class="text-xs text-slate-500 uppercase font-semibold">Total Pengeluaran</span>
+                <div class="text-xl font-bold mt-1 text-slate-800" id="stat-pengeluaran">Rp 0</div>
             </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Donatur</span>
-                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-xs">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                </div>
-                <div class="text-2xl font-extrabold text-slate-800" id="stat-donatur">0 Orang</div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                <span class="text-xs text-slate-500 uppercase font-semibold">Total Donatur</span>
+                <div class="text-xl font-bold mt-1 text-slate-800" id="stat-donatur">0 Orang</div>
             </div>
         </div>
 
-        <!-- Tab Navigation -->
-        <div class="border-b border-slate-200 flex gap-2 overflow-x-auto">
-            <button onclick="switchTab('pemasukan')" id="tab-pemasukan" class="px-5 py-3 font-semibold text-xs sm:text-sm border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition whitespace-nowrap">
+        <!-- Tab Navigation (Disembunyikan saat cetak) -->
+        <div class="border-b border-slate-200 flex gap-2 overflow-x-auto no-print tab-nav">
+            <button onclick="switchTab('pemasukan')" id="tab-pemasukan" class="px-4 py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition whitespace-nowrap">
                 <i class="fa-solid fa-circle-arrow-down"></i> Pemasukan
             </button>
-            <button onclick="switchTab('pengeluaran')" id="tab-pengeluaran" class="px-5 py-3 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition whitespace-nowrap">
+            <button onclick="switchTab('pengeluaran')" id="tab-pengeluaran" class="px-4 py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition whitespace-nowrap">
                 <i class="fa-solid fa-circle-arrow-up"></i> Pengeluaran
             </button>
-            <button onclick="switchTab('donatur')" id="tab-donatur" class="px-5 py-3 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition whitespace-nowrap">
+            <button onclick="switchTab('donatur')" id="tab-donatur" class="px-4 py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition whitespace-nowrap">
                 <i class="fa-solid fa-hand-holding-heart"></i> Daftar Donatur
             </button>
-            <button onclick="switchTab('laporan')" id="tab-laporan" class="px-5 py-3 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition whitespace-nowrap">
-                <i class="fa-solid fa-file-invoice-dollar"></i> Laporan Detail
+            <button onclick="switchTab('laporan')" id="tab-laporan" class="px-4 py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition whitespace-nowrap">
+                <i class="fa-solid fa-file-lines"></i> Laporan Detail
             </button>
         </div>
 
         <!-- TAB 1: PEMASUKAN -->
         <div id="content-pemasukan" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm h-fit">
-                <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit no-print">
+                <h3 class="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-plus-circle text-emerald-600"></i> Tambah Pemasukan
                 </h3>
-                <form id="form-pemasukan" class="space-y-4">
+                <form id="form-pemasukan" class="space-y-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Tanggal</label>
-                        <input type="date" id="in-tgl-masuk" onchange="updateMingguInfo('in-tgl-masuk', 'info-minggu-masuk')" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <p id="info-minggu-masuk" class="text-[11px] text-emerald-600 font-semibold mt-1 h-4"></p>
+                        <input type="date" id="in-tgl-masuk" onchange="updateMingguInfo('in-tgl-masuk', 'info-minggu-masuk')" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <p id="info-minggu-masuk" class="text-[11px] text-emerald-600 font-semibold mt-1 h-3"></p>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Pilih Donatur (Opsional)</label>
-                        <select id="in-donatur-masuk" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <select id="in-donatur-masuk" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
                             <option value="">-- Non-Donatur / Hamba Allah --</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Keterangan / Sumber</label>
-                        <input type="text" id="in-ket-masuk" placeholder="Contoh: Infaq Jumat" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input type="text" id="in-ket-masuk" placeholder="Contoh: Infaq Jumat" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Jumlah (Rp)</label>
-                        <input type="number" id="in-jml-masuk" placeholder="0" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input type="number" id="in-jml-masuk" placeholder="0" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-md shadow-emerald-600/20">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg text-xs transition">
                         Simpan Pemasukan
                     </button>
                 </form>
             </div>
-            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 overflow-x-auto">
+            <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-5 overflow-x-auto">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead>
                         <tr class="text-slate-400 font-semibold border-b border-slate-100">
-                            <th class="pb-3">TANGGAL & PERIODE</th>
-                            <th class="pb-3">NAMA DONATUR</th>
-                            <th class="pb-3">KETERANGAN</th>
-                            <th class="pb-3 text-right">JUMLAH</th>
-                            <th class="pb-3 text-center">AKSI</th>
+                            <th class="pb-2">TANGGAL & PERIODE</th>
+                            <th class="pb-2">NAMA DONATUR</th>
+                            <th class="pb-2">KETERANGAN</th>
+                            <th class="pb-2 text-right">JUMLAH</th>
+                            <th class="pb-2 text-center no-print">AKSI</th>
                         </tr>
                     </thead>
                     <tbody id="tbl-admin-pemasukan" class="divide-y divide-slate-100 text-slate-700">
-                        <tr><td colspan="5" class="py-8 text-center text-slate-400">Memuat...</td></tr>
+                        <tr><td colspan="5" class="py-6 text-center text-slate-400">Memuat...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -168,41 +191,41 @@
 
         <!-- TAB 2: PENGELUARAN -->
         <div id="content-pengeluaran" class="grid grid-cols-1 lg:grid-cols-3 gap-6 hidden">
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm h-fit">
-                <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit no-print">
+                <h3 class="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-plus-circle text-rose-600"></i> Tambah Pengeluaran
                 </h3>
-                <form id="form-pengeluaran" class="space-y-4">
+                <form id="form-pengeluaran" class="space-y-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Tanggal</label>
-                        <input type="date" id="in-tgl-keluar" onchange="updateMingguInfo('in-tgl-keluar', 'info-minggu-keluar')" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-rose-500 outline-none">
-                        <p id="info-minggu-keluar" class="text-[11px] text-rose-600 font-semibold mt-1 h-4"></p>
+                        <input type="date" id="in-tgl-keluar" onchange="updateMingguInfo('in-tgl-keluar', 'info-minggu-keluar')" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-rose-500 outline-none">
+                        <p id="info-minggu-keluar" class="text-[11px] text-rose-600 font-semibold mt-1 h-3"></p>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Keterangan / Keperluan</label>
-                        <input type="text" id="in-ket-keluar" placeholder="Contoh: Bayar Listrik" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-rose-500 outline-none">
+                        <input type="text" id="in-ket-keluar" placeholder="Contoh: Bayar Listrik" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-rose-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Jumlah (Rp)</label>
-                        <input type="number" id="in-jml-keluar" placeholder="0" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-rose-500 outline-none">
+                        <input type="number" id="in-jml-keluar" placeholder="0" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-rose-500 outline-none">
                     </div>
-                    <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-md shadow-rose-600/20">
+                    <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2 rounded-lg text-xs transition">
                         Simpan Pengeluaran
                     </button>
                 </form>
             </div>
-            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 overflow-x-auto">
+            <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-5 overflow-x-auto">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead>
                         <tr class="text-slate-400 font-semibold border-b border-slate-100">
-                            <th class="pb-3">TANGGAL & PERIODE</th>
-                            <th class="pb-3">KETERANGAN</th>
-                            <th class="pb-3 text-right">JUMLAH</th>
-                            <th class="pb-3 text-center">AKSI</th>
+                            <th class="pb-2">TANGGAL & PERIODE</th>
+                            <th class="pb-2">KETERANGAN</th>
+                            <th class="pb-2 text-right">JUMLAH</th>
+                            <th class="pb-2 text-center no-print">AKSI</th>
                         </tr>
                     </thead>
                     <tbody id="tbl-admin-pengeluaran" class="divide-y divide-slate-100 text-slate-700">
-                        <tr><td colspan="4" class="py-8 text-center text-slate-400">Memuat...</td></tr>
+                        <tr><td colspan="4" class="py-6 text-center text-slate-400">Memuat...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -210,54 +233,61 @@
 
         <!-- TAB 3: DONATUR -->
         <div id="content-donatur" class="grid grid-cols-1 lg:grid-cols-3 gap-6 hidden">
-            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm h-fit">
-                <h3 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-fit no-print">
+                <h3 class="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-user-plus text-blue-600"></i> Tambah Donatur
                 </h3>
-                <form id="form-donatur" class="space-y-4">
+                <form id="form-donatur" class="space-y-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Nama Donatur</label>
-                        <input type="text" id="in-nama-donatur" placeholder="H. Ahmad / Hamba Allah" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="text" id="in-nama-donatur" placeholder="H. Ahmad / Hamba Allah" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Kontak / No. HP</label>
-                        <input type="text" id="in-kontak-donatur" placeholder="0812xxxxxxx" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="text" id="in-kontak-donatur" placeholder="0812xxxxxxx" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Keterangan / Alamat</label>
-                        <input type="text" id="in-ket-donatur" placeholder="Donatur Rutin Bulanan" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="text" id="in-ket-donatur" placeholder="Donatur Rutin Bulanan" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-md shadow-blue-600/20">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-xs transition">
                         Simpan Data Donatur
                     </button>
                 </form>
             </div>
-            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 overflow-x-auto">
+            <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-5 overflow-x-auto">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead>
                         <tr class="text-slate-400 font-semibold border-b border-slate-100">
-                            <th class="pb-3">NAMA</th>
-                            <th class="pb-3">KONTAK</th>
-                            <th class="pb-3">KETERANGAN</th>
-                            <th class="pb-3 text-center">AKSI</th>
+                            <th class="pb-2">NAMA</th>
+                            <th class="pb-2">KONTAK</th>
+                            <th class="pb-2">KETERANGAN</th>
+                            <th class="pb-2 text-center no-print">AKSI</th>
                         </tr>
                     </thead>
                     <tbody id="tbl-admin-donatur" class="divide-y divide-slate-100 text-slate-700">
-                        <tr><td colspan="4" class="py-8 text-center text-slate-400">Memuat...</td></tr>
+                        <tr><td colspan="4" class="py-6 text-center text-slate-400">Memuat...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- TAB 4: LAPORAN DETAIL -->
-        <div id="content-laporan" class="space-y-6 hidden">
-            <!-- Filter Laporan Bar -->
-            <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap items-center justify-between gap-4 no-print">
+        <!-- TAB 4: LAPORAN DETAIL (TAMPILAN RINGKAS & LAPORAN CETAK) -->
+        <div id="content-laporan" class="space-y-4 hidden print-area">
+            
+            <!-- Header Resmi Hanya Saat Cetak PDF/Kertas -->
+            <div class="hidden print-header">
+                <h2 class="text-lg font-bold uppercase tracking-wide">Laporan Keuangan Kas Masjid Jami' Al Hidayah</h2>
+                <p class="text-xs" id="print-periode-text">Periode: Semua</p>
+            </div>
+
+            <!-- Filter Bar (Disembunyikan saat cetak) -->
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3 no-print">
                 <div class="flex flex-wrap items-center gap-3">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Pilih Bulan</label>
-                        <select id="filter-bulan" onchange="generateLaporan()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
-                            <option value="all">Semua Bulan (Setahun)</option>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-slate-600">Bulan:</label>
+                        <select id="filter-bulan" onchange="generateLaporan()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
+                            <option value="all">Semua Bulan</option>
                             <option value="01">Januari</option>
                             <option value="02">Februari</option>
                             <option value="03">Maret</option>
@@ -272,50 +302,47 @@
                             <option value="12">Desember</option>
                         </select>
                     </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Pilih Tahun</label>
-                        <select id="filter-tahun" onchange="generateLaporan()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
-                            <!-- Populated via JS -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-slate-600">Tahun:</label>
+                        <select id="filter-tahun" onchange="generateLaporan()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
+                            <!-- Populated JS -->
                         </select>
                     </div>
                 </div>
-                <button onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold flex items-center gap-2 transition">
-                    <i class="fa-solid fa-print"></i> Cetak / PDF
+                <button onclick="window.print()" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-print"></i> Cetak PDF
                 </button>
             </div>
 
-            <!-- Ringkasan Periode Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-emerald-50/80 border border-emerald-200 p-4 rounded-2xl">
-                    <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Pemasukan Periode Ini</span>
-                    <div class="text-xl font-bold text-emerald-800 mt-1" id="lap-stat-masuk">Rp 0</div>
+            <!-- Ringkasan Periode Simpel (Ringkas tanpa box bertumpuk) -->
+            <div class="grid grid-cols-3 gap-3 text-xs">
+                <div class="p-3 rounded-lg border border-slate-200 bg-white summary-box">
+                    <span class="text-slate-500 font-medium">Pemasukan Periode Ini</span>
+                    <div class="text-base font-bold text-emerald-600 mt-0.5" id="lap-stat-masuk">Rp 0</div>
                 </div>
-                <div class="bg-rose-50/80 border border-rose-200 p-4 rounded-2xl">
-                    <span class="text-xs font-semibold text-rose-700 uppercase tracking-wider">Pengeluaran Periode Ini</span>
-                    <div class="text-xl font-bold text-rose-800 mt-1" id="lap-stat-keluar">Rp 0</div>
+                <div class="p-3 rounded-lg border border-slate-200 bg-white summary-box">
+                    <span class="text-slate-500 font-medium">Pengeluaran Periode Ini</span>
+                    <div class="text-base font-bold text-rose-600 mt-0.5" id="lap-stat-keluar">Rp 0</div>
                 </div>
-                <div class="bg-blue-50/80 border border-blue-200 p-4 rounded-2xl">
-                    <span class="text-xs font-semibold text-blue-700 uppercase tracking-wider">Selisih Kas Periode Ini</span>
-                    <div class="text-xl font-bold text-blue-800 mt-1" id="lap-stat-selisih">Rp 0</div>
+                <div class="p-3 rounded-lg border border-slate-200 bg-white summary-box">
+                    <span class="text-slate-500 font-medium">Selisih Kas</span>
+                    <div class="text-base font-bold text-slate-800 mt-0.5" id="lap-stat-selisih">Rp 0</div>
                 </div>
             </div>
 
-            <!-- Tabel Detail Laporan Gabungan -->
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 overflow-x-auto">
-                <h4 class="font-bold text-slate-800 text-sm mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-list-check text-slate-600"></i> Rincian Seluruh Transaksi Periode Ini
-                </h4>
+            <!-- Tabel Transaksi Gabungan -->
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 overflow-x-auto print-area">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead>
-                        <tr class="text-slate-400 font-semibold border-b border-slate-100">
-                            <th class="pb-3">TANGGAL</th>
-                            <th class="pb-3">JENIS</th>
-                            <th class="pb-3">KETERANGAN / DONATUR</th>
-                            <th class="pb-3 text-right">JUMLAH</th>
+                        <tr class="text-slate-500 border-b border-slate-200">
+                            <th class="py-2">TANGGAL</th>
+                            <th class="py-2">JENIS</th>
+                            <th class="py-2">KETERANGAN / DONATUR</th>
+                            <th class="py-2 text-right">JUMLAH</th>
                         </tr>
                     </thead>
                     <tbody id="tbl-laporan-detail" class="divide-y divide-slate-100 text-slate-700">
-                        <tr><td colspan="4" class="py-8 text-center text-slate-400">Pilih periode untuk melihat laporan.</td></tr>
+                        <tr><td colspan="4" class="py-6 text-center text-slate-400">Pilih periode untuk melihat laporan.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -324,46 +351,46 @@
     </main>
 
     <!-- Modal Edit Data -->
-    <div id="modal-edit" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-100 space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+    <div id="modal-edit" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden no-print">
+        <div class="bg-white w-full max-w-md rounded-xl p-5 shadow-2xl border border-slate-100 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
                 <h3 class="font-bold text-slate-800 text-sm" id="modal-title">Edit Data</h3>
                 <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
-            <form id="form-edit" class="space-y-4">
+            <form id="form-edit" class="space-y-3">
                 <input type="hidden" id="edit-id">
                 <input type="hidden" id="edit-table">
 
                 <div id="group-edit-tgl">
                     <label class="block text-xs font-medium text-slate-600 mb-1">Tanggal</label>
-                    <input type="date" id="edit-tgl" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="date" id="edit-tgl" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
                 </div>
 
                 <div id="group-edit-donatur" class="hidden">
                     <label class="block text-xs font-medium text-slate-600 mb-1">Pilih Donatur</label>
-                    <select id="edit-donatur" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <select id="edit-donatur" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
                         <option value="">-- Non-Donatur / Hamba Allah --</option>
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1" id="lbl-edit-f1">Keterangan / Nama</label>
-                    <input type="text" id="edit-f1" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="text" id="edit-f1" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1" id="lbl-edit-f2">Jumlah (Rp) / Kontak</label>
-                    <input type="text" id="edit-f2" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="text" id="edit-f2" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
                 </div>
 
                 <div id="group-edit-f3" class="hidden">
                     <label class="block text-xs font-medium text-slate-600 mb-1">Keterangan Donatur</label>
-                    <input type="text" id="edit-f3" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="text" id="edit-f3" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
                 </div>
 
                 <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeEditModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-2.5 rounded-xl text-xs transition">Batal</button>
-                    <button type="submit" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-xl text-xs transition shadow-md shadow-emerald-600/20">Simpan Perubahan</button>
+                    <button type="button" onclick="closeEditModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-2 rounded-lg text-xs transition">Batal</button>
+                    <button type="submit" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg text-xs transition">Simpan</button>
                 </div>
             </form>
         </div>
@@ -401,7 +428,7 @@
                 infoEl.innerText = '';
                 return;
             }
-            infoEl.innerText = `✨ Terdeteksi: ${getMingguKe(val)}`;
+            infoEl.innerText = `Terdeteksi: ${getMingguKe(val)}`;
         }
 
         let currentData = { pemasukan: [], pengeluaran: [], donatur: [] };
@@ -411,10 +438,10 @@
                 const btn = document.getElementById(`tab-${t}`);
                 const content = document.getElementById(`content-${t}`);
                 if (t === tabName) {
-                    btn.className = 'px-5 py-3 font-semibold text-xs sm:text-sm border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition whitespace-nowrap';
+                    btn.className = 'px-4 py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition whitespace-nowrap';
                     content.classList.remove('hidden');
                 } else {
-                    btn.className = 'px-5 py-3 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition whitespace-nowrap';
+                    btn.className = 'px-4 py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition whitespace-nowrap';
                     content.classList.add('hidden');
                 }
             });
@@ -439,14 +466,18 @@
             }
             selectTahun.innerHTML = options;
 
-            // Atur default bulan ke bulan saat ini
             const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
             document.getElementById('filter-bulan').value = currentMonth;
         }
 
         function generateLaporan() {
-            const bulan = document.getElementById('filter-bulan').value;
+            const bulanSelect = document.getElementById('filter-bulan');
+            const bulan = bulanSelect.value;
+            const bulanText = bulanSelect.options[bulanSelect.selectedIndex].text;
             const tahun = document.getElementById('filter-tahun').value;
+
+            // Update Teks Periode untuk Cetakan Formal
+            document.getElementById('print-periode-text').innerText = `Periode: ${bulanText} ${tahun}`;
 
             // Filter Pemasukan
             const filteredMasuk = currentData.pemasukan.filter(item => {
@@ -466,7 +497,7 @@
                 return true;
             });
 
-            // Hitung Total Ringkasan Laporan
+            // Ringkasan
             const totMasuk = filteredMasuk.reduce((a, b) => a + (Number(b.jumlah) || 0), 0);
             const totKeluar = filteredKeluar.reduce((a, b) => a + (Number(b.jumlah) || 0), 0);
             const selisih = totMasuk - totKeluar;
@@ -475,7 +506,7 @@
             document.getElementById('lap-stat-keluar').innerText = formatRupiah(totKeluar);
             document.getElementById('lap-stat-selisih').innerText = formatRupiah(selisih);
 
-            // Gabungkan Transaksi & Sort berdasarkan tanggal terbaru
+            // Gabungkan Transaksi & Sort berdasarkan tanggal
             const combined = [
                 ...filteredMasuk.map(i => ({ ...i, type: 'pemasukan' })),
                 ...filteredKeluar.map(i => ({ ...i, type: 'pengeluaran' }))
@@ -483,27 +514,27 @@
 
             const tbody = document.getElementById('tbl-laporan-detail');
             if (combined.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-slate-400">Tidak ada transaksi pada periode ini.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400">Tidak ada transaksi pada periode ini.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = combined.map(i => {
                 const isMasuk = i.type === 'pemasukan';
                 const badge = isMasuk 
-                    ? '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Pemasukan</span>'
-                    : '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">Pengeluaran</span>';
+                    ? '<span class="text-emerald-700 font-semibold badge-print">Pemasukan</span>'
+                    : '<span class="text-rose-700 font-semibold badge-print">Pengeluaran</span>';
                 
-                const donaturNama = (isMasuk && i.donatur) ? `<span class="text-slate-500 font-medium"> (${i.donatur.nama})</span>` : '';
+                const donaturNama = (isMasuk && i.donatur) ? `<span class="text-slate-500 font-normal"> (${i.donatur.nama})</span>` : '';
                 const ket = (i.keterangan || '-') + donaturNama;
                 const nominalClass = isMasuk ? 'text-emerald-600 font-bold' : 'text-rose-600 font-bold';
                 const prefix = isMasuk ? '+' : '-';
 
                 return `
                     <tr class="hover:bg-slate-50">
-                        <td class="py-3 font-medium text-slate-600 whitespace-nowrap">${formatDate(i.tanggal)}</td>
-                        <td class="py-3">${badge}</td>
-                        <td class="py-3 font-medium text-slate-800">${ket}</td>
-                        <td class="py-3 text-right ${nominalClass}">${prefix}${formatRupiah(i.jumlah)}</td>
+                        <td class="py-2.5 font-medium text-slate-600 whitespace-nowrap">${formatDate(i.tanggal)}</td>
+                        <td class="py-2.5">${badge}</td>
+                        <td class="py-2.5 font-medium text-slate-800">${ket}</td>
+                        <td class="py-2.5 text-right ${nominalClass}">${prefix}${formatRupiah(i.jumlah)}</td>
                     </tr>
                 `;
             }).join('');
@@ -511,12 +542,10 @@
 
         async function loadAdminData() {
             try {
-                // Fetch Donatur
                 const { data: donatur } = await db.from('donatur').select('*').order('created_at', { ascending: false });
                 currentData.donatur = donatur || [];
                 renderDonaturOptions(currentData.donatur);
 
-                // Fetch Pemasukan & Pengeluaran
                 const { data: masuk } = await db.from('pemasukan').select('*, donatur(id, nama)').order('tanggal', { ascending: false });
                 const { data: keluar } = await db.from('pengeluaran').select('*').order('tanggal', { ascending: false });
 
@@ -531,56 +560,49 @@
                 document.getElementById('stat-saldo').innerText = formatRupiah(totalMasuk - totalKeluar);
                 document.getElementById('stat-donatur').innerText = `${currentData.donatur.length} Orang`;
 
-                // Render Pemasukan Table
+                // Render Pemasukan
                 const tbodyMasuk = document.getElementById('tbl-admin-pemasukan');
                 tbodyMasuk.innerHTML = (currentData.pemasukan.length > 0) ? currentData.pemasukan.map(i => `
                     <tr class="hover:bg-slate-50">
-                        <td class="py-3 font-medium text-slate-600 whitespace-nowrap">
-                            ${formatDate(i.tanggal)}
-                            <span class="ml-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80">${getMingguKe(i.tanggal)}</span>
-                        </td>
-                        <td class="py-3 font-medium text-slate-700">${i.donatur ? i.donatur.nama : '<span class="text-slate-400 italic">Hamba Allah / -</span>'}</td>
-                        <td class="py-3 font-semibold text-slate-800">${i.keterangan || '-'}</td>
-                        <td class="py-3 text-right font-bold text-emerald-600">+${formatRupiah(i.jumlah)}</td>
-                        <td class="py-3 text-center whitespace-nowrap">
-                            <button onclick="openEditModal('pemasukan', '${i.id}')" class="text-xs text-blue-600 hover:text-blue-800 p-1.5 rounded-lg hover:bg-blue-50 transition mr-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteData('pemasukan', '${i.id}')" class="text-xs text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition"><i class="fa-solid fa-trash"></i></button>
+                        <td class="py-2.5 text-slate-600 font-medium whitespace-nowrap">${formatDate(i.tanggal)} <span class="text-[10px] text-slate-400">(${getMingguKe(i.tanggal)})</span></td>
+                        <td class="py-2.5 text-slate-700">${i.donatur ? i.donatur.nama : '<span class="text-slate-400 italic">Hamba Allah</span>'}</td>
+                        <td class="py-2.5 text-slate-800 font-medium">${i.keterangan || '-'}</td>
+                        <td class="py-2.5 text-right font-bold text-emerald-600">+${formatRupiah(i.jumlah)}</td>
+                        <td class="py-2.5 text-center whitespace-nowrap no-print">
+                            <button onclick="openEditModal('pemasukan', '${i.id}')" class="text-blue-600 hover:text-blue-800 px-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteData('pemasukan', '${i.id}')" class="text-rose-500 hover:text-rose-700 px-1.5"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `).join('') : `<tr><td colspan="5" class="py-6 text-center text-slate-400">Belum ada data.</td></tr>`;
 
-                // Render Pengeluaran Table
+                // Render Pengeluaran
                 const tbodyKeluar = document.getElementById('tbl-admin-pengeluaran');
                 tbodyKeluar.innerHTML = (currentData.pengeluaran.length > 0) ? currentData.pengeluaran.map(i => `
                     <tr class="hover:bg-slate-50">
-                        <td class="py-3 font-medium text-slate-600 whitespace-nowrap">
-                            ${formatDate(i.tanggal)}
-                            <span class="ml-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200/80">${getMingguKe(i.tanggal)}</span>
-                        </td>
-                        <td class="py-3 font-semibold text-slate-800">${i.keterangan || '-'}</td>
-                        <td class="py-3 text-right font-bold text-rose-600">-${formatRupiah(i.jumlah)}</td>
-                        <td class="py-3 text-center whitespace-nowrap">
-                            <button onclick="openEditModal('pengeluaran', '${i.id}')" class="text-xs text-blue-600 hover:text-blue-800 p-1.5 rounded-lg hover:bg-blue-50 transition mr-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteData('pengeluaran', '${i.id}')" class="text-xs text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition"><i class="fa-solid fa-trash"></i></button>
+                        <td class="py-2.5 text-slate-600 font-medium whitespace-nowrap">${formatDate(i.tanggal)} <span class="text-[10px] text-slate-400">(${getMingguKe(i.tanggal)})</span></td>
+                        <td class="py-2.5 text-slate-800 font-medium">${i.keterangan || '-'}</td>
+                        <td class="py-2.5 text-right font-bold text-rose-600">-${formatRupiah(i.jumlah)}</td>
+                        <td class="py-2.5 text-center whitespace-nowrap no-print">
+                            <button onclick="openEditModal('pengeluaran', '${i.id}')" class="text-blue-600 hover:text-blue-800 px-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteData('pengeluaran', '${i.id}')" class="text-rose-500 hover:text-rose-700 px-1.5"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `).join('') : `<tr><td colspan="4" class="py-6 text-center text-slate-400">Belum ada data.</td></tr>`;
 
-                // Render Donatur Table
+                // Render Donatur
                 const tbodyDonatur = document.getElementById('tbl-admin-donatur');
                 tbodyDonatur.innerHTML = (currentData.donatur.length > 0) ? currentData.donatur.map(i => `
                     <tr class="hover:bg-slate-50">
-                        <td class="py-3 font-semibold text-slate-800">${i.nama || '-'}</td>
-                        <td class="py-3 text-slate-600">${i.kontak || '-'}</td>
-                        <td class="py-3 text-slate-500">${i.keterangan || '-'}</td>
-                        <td class="py-3 text-center whitespace-nowrap">
-                            <button onclick="openEditModal('donatur', '${i.id}')" class="text-xs text-blue-600 hover:text-blue-800 p-1.5 rounded-lg hover:bg-blue-50 transition mr-1"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteData('donatur', '${i.id}')" class="text-xs text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition"><i class="fa-solid fa-trash"></i></button>
+                        <td class="py-2.5 text-slate-800 font-semibold">${i.nama || '-'}</td>
+                        <td class="py-2.5 text-slate-600">${i.kontak || '-'}</td>
+                        <td class="py-2.5 text-slate-500">${i.keterangan || '-'}</td>
+                        <td class="py-2.5 text-center whitespace-nowrap no-print">
+                            <button onclick="openEditModal('donatur', '${i.id}')" class="text-blue-600 hover:text-blue-800 px-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteData('donatur', '${i.id}')" class="text-rose-500 hover:text-rose-700 px-1.5"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `).join('') : `<tr><td colspan="4" class="py-6 text-center text-slate-400">Belum ada donatur.</td></tr>`;
 
-                // Generasi Laporan setelah data selesai dimuat
                 generateLaporan();
 
             } catch (err) {
@@ -588,53 +610,42 @@
             }
         }
 
-        // Form Submit Handlers
+        // Form Submit
         document.getElementById('form-pemasukan').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const tanggal = document.getElementById('in-tgl-masuk').value;
-            const id_donatur = document.getElementById('in-donatur-masuk').value || null;
-            const keterangan = document.getElementById('in-ket-masuk').value;
-            const jumlah = document.getElementById('in-jml-masuk').value;
-
-            const { error } = await db.from('pemasukan').insert([{ tanggal, id_donatur, keterangan, jumlah: Number(jumlah) }]);
+            const { error } = await db.from('pemasukan').insert([{ 
+                tanggal: document.getElementById('in-tgl-masuk').value, 
+                id_donatur: document.getElementById('in-donatur-masuk').value || null, 
+                keterangan: document.getElementById('in-ket-masuk').value, 
+                jumlah: Number(document.getElementById('in-jml-masuk').value) 
+            }]);
             if (error) alert(error.message);
-            else {
-                e.target.reset();
-                document.getElementById('info-minggu-masuk').innerText = '';
-                loadAdminData();
-            }
+            else { e.target.reset(); document.getElementById('info-minggu-masuk').innerText = ''; loadAdminData(); }
         });
 
         document.getElementById('form-pengeluaran').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const tanggal = document.getElementById('in-tgl-keluar').value;
-            const keterangan = document.getElementById('in-ket-keluar').value;
-            const jumlah = document.getElementById('in-jml-keluar').value;
-
-            const { error } = await db.from('pengeluaran').insert([{ tanggal, keterangan, jumlah: Number(jumlah) }]);
+            const { error } = await db.from('pengeluaran').insert([{ 
+                tanggal: document.getElementById('in-tgl-keluar').value, 
+                keterangan: document.getElementById('in-ket-keluar').value, 
+                jumlah: Number(document.getElementById('in-jml-keluar').value) 
+            }]);
             if (error) alert(error.message);
-            else {
-                e.target.reset();
-                document.getElementById('info-minggu-keluar').innerText = '';
-                loadAdminData();
-            }
+            else { e.target.reset(); document.getElementById('info-minggu-keluar').innerText = ''; loadAdminData(); }
         });
 
         document.getElementById('form-donatur').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const nama = document.getElementById('in-nama-donatur').value;
-            const kontak = document.getElementById('in-kontak-donatur').value;
-            const keterangan = document.getElementById('in-ket-donatur').value;
-
-            const { error } = await db.from('donatur').insert([{ nama, kontak, keterangan }]);
+            const { error } = await db.from('donatur').insert([{ 
+                nama: document.getElementById('in-nama-donatur').value, 
+                kontak: document.getElementById('in-kontak-donatur').value, 
+                keterangan: document.getElementById('in-ket-donatur').value 
+            }]);
             if (error) alert(error.message);
-            else {
-                e.target.reset();
-                loadAdminData();
-            }
+            else { e.target.reset(); loadAdminData(); }
         });
 
-        // Edit Modal Logic
+        // Edit & Delete
         function openEditModal(table, id) {
             const item = currentData[table].find(x => String(x.id) === String(id));
             if (!item) return;
@@ -642,47 +653,37 @@
             document.getElementById('edit-table').value = table;
             document.getElementById('edit-id').value = id;
 
-            const modalTitle = document.getElementById('modal-title');
-            const groupTgl = document.getElementById('group-edit-tgl');
-            const groupDonatur = document.getElementById('group-edit-donatur');
-            const groupF3 = document.getElementById('group-edit-f3');
-            const lblF1 = document.getElementById('lbl-edit-f1');
-            const lblF2 = document.getElementById('lbl-edit-f2');
-
             if (table === 'pemasukan') {
-                modalTitle.innerText = 'Edit Pemasukan';
-                groupTgl.classList.remove('hidden');
-                groupDonatur.classList.remove('hidden');
-                groupF3.classList.add('hidden');
-
+                document.getElementById('modal-title').innerText = 'Edit Pemasukan';
+                document.getElementById('group-edit-tgl').classList.remove('hidden');
+                document.getElementById('group-edit-donatur').classList.remove('hidden');
+                document.getElementById('group-edit-f3').classList.add('hidden');
                 document.getElementById('edit-tgl').value = item.tanggal || '';
                 document.getElementById('edit-donatur').value = item.id_donatur || '';
-                lblF1.innerText = 'Keterangan / Sumber';
+                document.getElementById('lbl-edit-f1').innerText = 'Keterangan';
                 document.getElementById('edit-f1').value = item.keterangan || '';
-                lblF2.innerText = 'Jumlah (Rp)';
+                document.getElementById('lbl-edit-f2').innerText = 'Jumlah (Rp)';
                 document.getElementById('edit-f2').type = 'number';
                 document.getElementById('edit-f2').value = item.jumlah || '';
             } else if (table === 'pengeluaran') {
-                modalTitle.innerText = 'Edit Pengeluaran';
-                groupTgl.classList.remove('hidden');
-                groupDonatur.classList.add('hidden');
-                groupF3.classList.add('hidden');
-
+                document.getElementById('modal-title').innerText = 'Edit Pengeluaran';
+                document.getElementById('group-edit-tgl').classList.remove('hidden');
+                document.getElementById('group-edit-donatur').classList.add('hidden');
+                document.getElementById('group-edit-f3').classList.add('hidden');
                 document.getElementById('edit-tgl').value = item.tanggal || '';
-                lblF1.innerText = 'Keterangan / Keperluan';
+                document.getElementById('lbl-edit-f1').innerText = 'Keterangan';
                 document.getElementById('edit-f1').value = item.keterangan || '';
-                lblF2.innerText = 'Jumlah (Rp)';
+                document.getElementById('lbl-edit-f2').innerText = 'Jumlah (Rp)';
                 document.getElementById('edit-f2').type = 'number';
                 document.getElementById('edit-f2').value = item.jumlah || '';
             } else {
-                modalTitle.innerText = 'Edit Donatur';
-                groupTgl.classList.add('hidden');
-                groupDonatur.classList.add('hidden');
-                groupF3.classList.remove('hidden');
-
-                lblF1.innerText = 'Nama Donatur';
+                document.getElementById('modal-title').innerText = 'Edit Donatur';
+                document.getElementById('group-edit-tgl').classList.add('hidden');
+                document.getElementById('group-edit-donatur').classList.add('hidden');
+                document.getElementById('group-edit-f3').classList.remove('hidden');
+                document.getElementById('lbl-edit-f1').innerText = 'Nama';
                 document.getElementById('edit-f1').value = item.nama || '';
-                lblF2.innerText = 'Kontak / No. HP';
+                document.getElementById('lbl-edit-f2').innerText = 'Kontak';
                 document.getElementById('edit-f2').type = 'text';
                 document.getElementById('edit-f2').value = item.kontak || '';
                 document.getElementById('edit-f3').value = item.keterangan || '';
@@ -723,16 +724,12 @@
             }
 
             const { error } = await db.from(table).update(payload).eq('id', id);
-            if (error) alert('Gagal memperbarui: ' + error.message);
-            else {
-                closeEditModal();
-                loadAdminData();
-            }
+            if (error) alert(error.message);
+            else { closeEditModal(); loadAdminData(); }
         });
 
-        // Delete Handler
         async function deleteData(table, id) {
-            if (!confirm('Apakah kamu yakin ingin menghapus data ini?')) return;
+            if (!confirm('Hapus data ini?')) return;
             const { error } = await db.from(table).delete().eq('id', id);
             if (error) alert(error.message);
             else loadAdminData();
