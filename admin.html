@@ -121,6 +121,12 @@
                         <p id="info-minggu-masuk" class="text-[11px] text-emerald-600 font-semibold mt-1 h-4"></p>
                     </div>
                     <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Pilih Donatur (Opsional)</label>
+                        <select id="in-donatur-masuk" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="">-- Non-Donatur / Hamba Allah --</option>
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Keterangan / Sumber</label>
                         <input type="text" id="in-ket-masuk" placeholder="Contoh: Infaq Jumat" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
@@ -138,13 +144,14 @@
                     <thead>
                         <tr class="text-slate-400 font-semibold border-b border-slate-100">
                             <th class="pb-3">TANGGAL & PERIODE</th>
+                            <th class="pb-3">NAMA DONATUR</th>
                             <th class="pb-3">KETERANGAN</th>
                             <th class="pb-3 text-right">JUMLAH</th>
                             <th class="pb-3 text-center">AKSI</th>
                         </tr>
                     </thead>
                     <tbody id="tbl-admin-pemasukan" class="divide-y divide-slate-100 text-slate-700">
-                        <tr><td colspan="4" class="py-8 text-center text-slate-400">Memuat...</td></tr>
+                        <tr><td colspan="5" class="py-8 text-center text-slate-400">Memuat...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -251,6 +258,13 @@
                     <input type="date" id="edit-tgl" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
 
+                <div id="group-edit-donatur" class="hidden">
+                    <label class="block text-xs font-medium text-slate-600 mb-1">Pilih Donatur</label>
+                    <select id="edit-donatur" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="">-- Non-Donatur / Hamba Allah --</option>
+                    </select>
+                </div>
+
                 <div>
                     <label class="block text-xs font-medium text-slate-600 mb-1" id="lbl-edit-f1">Keterangan / Nama</label>
                     <input type="text" id="edit-f1" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
@@ -290,7 +304,6 @@
             return new Date(dStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
         }
 
-        // Otomatis Hitung Minggu Ke-1 s/d Ke-4
         function getMingguKe(dateStr) {
             if (!dateStr) return '-';
             const day = new Date(dateStr).getDate();
@@ -310,7 +323,6 @@
             infoEl.innerText = `✨ Terdeteksi: ${getMingguKe(val)}`;
         }
 
-        // Global Data Cache untuk Edit
         let currentData = { pemasukan: [], pengeluaran: [], donatur: [] };
 
         function switchTab(tabName) {
@@ -327,15 +339,29 @@
             });
         }
 
+        function renderDonaturOptions(donaturList) {
+            const options = ['<option value="">-- Non-Donatur / Hamba Allah --</option>'];
+            donaturList.forEach(d => {
+                options.push(`<option value="${d.id}">${d.nama}</option>`);
+            });
+            
+            document.getElementById('in-donatur-masuk').innerHTML = options.join('');
+            document.getElementById('edit-donatur').innerHTML = options.join('');
+        }
+
         async function loadAdminData() {
             try {
-                const { data: masuk } = await db.from('pemasukan').select('*').order('tanggal', { ascending: false });
-                const { data: keluar } = await db.from('pengeluaran').select('*').order('tanggal', { ascending: false });
+                // Fetch Donatur dulu untuk dropdown
                 const { data: donatur } = await db.from('donatur').select('*').order('created_at', { ascending: false });
+                currentData.donatur = donatur || [];
+                renderDonaturOptions(currentData.donatur);
+
+                // Join relational query donatur(nama)
+                const { data: masuk } = await db.from('pemasukan').select('*, donatur(id, nama)').order('tanggal', { ascending: false });
+                const { data: keluar } = await db.from('pengeluaran').select('*').order('tanggal', { ascending: false });
 
                 currentData.pemasukan = masuk || [];
                 currentData.pengeluaran = keluar || [];
-                currentData.donatur = donatur || [];
 
                 const totalMasuk = currentData.pemasukan.reduce((acc, i) => acc + (Number(i.jumlah) || 0), 0);
                 const totalKeluar = currentData.pengeluaran.reduce((acc, i) => acc + (Number(i.jumlah) || 0), 0);
@@ -345,7 +371,7 @@
                 document.getElementById('stat-saldo').innerText = formatRupiah(totalMasuk - totalKeluar);
                 document.getElementById('stat-donatur').innerText = `${currentData.donatur.length} Orang`;
 
-                // Render Pemasukan Table
+                // Render Pemasukan Table (Dengan Relasi Donatur)
                 const tbodyMasuk = document.getElementById('tbl-admin-pemasukan');
                 tbodyMasuk.innerHTML = (currentData.pemasukan.length > 0) ? currentData.pemasukan.map(i => `
                     <tr class="hover:bg-slate-50">
@@ -353,6 +379,7 @@
                             ${formatDate(i.tanggal)}
                             <span class="ml-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80">${getMingguKe(i.tanggal)}</span>
                         </td>
+                        <td class="py-3 font-medium text-slate-700">${i.donatur ? i.donatur.nama : '<span class="text-slate-400 italic">Hamba Allah / -</span>'}</td>
                         <td class="py-3 font-semibold text-slate-800">${i.keterangan || '-'}</td>
                         <td class="py-3 text-right font-bold text-emerald-600">+${formatRupiah(i.jumlah)}</td>
                         <td class="py-3 text-center whitespace-nowrap">
@@ -360,7 +387,7 @@
                             <button onclick="deleteData('pemasukan', '${i.id}')" class="text-xs text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 transition"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
-                `).join('') : `<tr><td colspan="4" class="py-6 text-center text-slate-400">Belum ada data.</td></tr>`;
+                `).join('') : `<tr><td colspan="5" class="py-6 text-center text-slate-400">Belum ada data.</td></tr>`;
 
                 // Render Pengeluaran Table
                 const tbodyKeluar = document.getElementById('tbl-admin-pengeluaran');
@@ -402,10 +429,11 @@
         document.getElementById('form-pemasukan').addEventListener('submit', async (e) => {
             e.preventDefault();
             const tanggal = document.getElementById('in-tgl-masuk').value;
+            const id_donatur = document.getElementById('in-donatur-masuk').value || null;
             const keterangan = document.getElementById('in-ket-masuk').value;
             const jumlah = document.getElementById('in-jml-masuk').value;
 
-            const { error } = await db.from('pemasukan').insert([{ tanggal, keterangan, jumlah: Number(jumlah) }]);
+            const { error } = await db.from('pemasukan').insert([{ tanggal, id_donatur, keterangan, jumlah: Number(jumlah) }]);
             if (error) alert(error.message);
             else {
                 e.target.reset();
@@ -453,15 +481,30 @@
 
             const modalTitle = document.getElementById('modal-title');
             const groupTgl = document.getElementById('group-edit-tgl');
+            const groupDonatur = document.getElementById('group-edit-donatur');
             const groupF3 = document.getElementById('group-edit-f3');
             const lblF1 = document.getElementById('lbl-edit-f1');
             const lblF2 = document.getElementById('lbl-edit-f2');
 
-            if (table === 'pemasukan' || table === 'pengeluaran') {
-                modalTitle.innerText = `Edit ${table === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran'}`;
+            if (table === 'pemasukan') {
+                modalTitle.innerText = 'Edit Pemasukan';
                 groupTgl.classList.remove('hidden');
+                groupDonatur.classList.remove('hidden');
                 groupF3.classList.add('hidden');
-                
+
+                document.getElementById('edit-tgl').value = item.tanggal || '';
+                document.getElementById('edit-donatur').value = item.id_donatur || '';
+                lblF1.innerText = 'Keterangan / Sumber';
+                document.getElementById('edit-f1').value = item.keterangan || '';
+                lblF2.innerText = 'Jumlah (Rp)';
+                document.getElementById('edit-f2').type = 'number';
+                document.getElementById('edit-f2').value = item.jumlah || '';
+            } else if (table === 'pengeluaran') {
+                modalTitle.innerText = 'Edit Pengeluaran';
+                groupTgl.classList.remove('hidden');
+                groupDonatur.classList.add('hidden');
+                groupF3.classList.add('hidden');
+
                 document.getElementById('edit-tgl').value = item.tanggal || '';
                 lblF1.innerText = 'Keterangan / Keperluan';
                 document.getElementById('edit-f1').value = item.keterangan || '';
@@ -471,6 +514,7 @@
             } else {
                 modalTitle.innerText = 'Edit Donatur';
                 groupTgl.classList.add('hidden');
+                groupDonatur.classList.add('hidden');
                 groupF3.classList.remove('hidden');
 
                 lblF1.innerText = 'Nama Donatur';
@@ -494,7 +538,14 @@
             const id = document.getElementById('edit-id').value;
 
             let payload = {};
-            if (table === 'pemasukan' || table === 'pengeluaran') {
+            if (table === 'pemasukan') {
+                payload = {
+                    tanggal: document.getElementById('edit-tgl').value,
+                    id_donatur: document.getElementById('edit-donatur').value || null,
+                    keterangan: document.getElementById('edit-f1').value,
+                    jumlah: Number(document.getElementById('edit-f2').value)
+                };
+            } else if (table === 'pengeluaran') {
                 payload = {
                     tanggal: document.getElementById('edit-tgl').value,
                     keterangan: document.getElementById('edit-f1').value,
