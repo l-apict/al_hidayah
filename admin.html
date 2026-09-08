@@ -52,7 +52,7 @@
             }
             th, td { 
                 border: 1px solid #cbd5e1 !important; 
-                padding: 8px !important; 
+                padding: 6px 8px !important; 
                 text-align: left;
             }
             th { 
@@ -277,14 +277,21 @@
             
             <!-- Header Resmi Hasil Cetak -->
             <div class="hidden print-header">
-                <h2 class="text-lg font-bold uppercase tracking-wide">Laporan Keuangan Kas Masjid Jami' Al Hidayah</h2>
+                <h2 class="text-lg font-bold uppercase tracking-wide" id="print-main-title">Laporan Keuangan Kas Masjid Jami' Al Hidayah</h2>
                 <p class="text-xs text-slate-600">Jl. Raya Setu Kp. Cibuntu RT. 01/04, Desa Cibuntu Cibitung – Bekasi 17520</p>
                 <p class="text-xs" id="print-periode-text">Periode: Semua</p>
             </div>
 
-            <!-- Filter Bar: Dari Bulan s/d Bulan -->
+            <!-- Filter Bar -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3 no-print">
                 <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-slate-600">Jenis Laporan:</label>
+                        <select id="filter-jenis-laporan" onchange="generateLaporan()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-emerald-700 outline-none">
+                            <option value="kas">Laporan Kas Detail</option>
+                            <option value="donatur">Laporan Pembayaran Donatur</option>
+                        </select>
+                    </div>
                     <div class="flex items-center gap-2">
                         <label class="text-xs font-semibold text-slate-600">Dari:</label>
                         <select id="filter-bulan-dari" onchange="generateLaporan()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
@@ -331,34 +338,77 @@
                 </button>
             </div>
 
-            <!-- Ringkasan Periode (2 Kolom) -->
-            <div class="grid grid-cols-2 gap-3 text-xs">
-                <div class="p-3 rounded-lg border border-slate-200 bg-white summary-box">
-                    <span class="text-slate-500 font-medium">Pemasukan Periode Ini</span>
-                    <div class="text-base font-bold text-emerald-600 mt-0.5" id="lap-stat-masuk">Rp 0</div>
+            <!-- TAMPILAN 1: LAPORAN KAS DETAIL -->
+            <div id="container-laporan-kas" class="space-y-4">
+                <!-- Ringkasan Periode (2 Kolom) -->
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="p-3 rounded-lg border border-slate-200 bg-white summary-box">
+                        <span class="text-slate-500 font-medium">Pemasukan Periode Ini</span>
+                        <div class="text-base font-bold text-emerald-600 mt-0.5" id="lap-stat-masuk">Rp 0</div>
+                    </div>
+                    <div class="p-3 rounded-lg border border-slate-200 bg-white summary-box">
+                        <span class="text-slate-500 font-medium">Pengeluaran Periode Ini</span>
+                        <div class="text-base font-bold text-rose-600 mt-0.5" id="lap-stat-keluar">Rp 0</div>
+                    </div>
                 </div>
-                <div class="p-3 rounded-lg border border-slate-200 bg-white summary-box">
-                    <span class="text-slate-500 font-medium">Pengeluaran Periode Ini</span>
-                    <div class="text-base font-bold text-rose-600 mt-0.5" id="lap-stat-keluar">Rp 0</div>
+
+                <!-- Tabel Transaksi Gabungan -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 overflow-x-auto print-area">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="py-2">TANGGAL</th>
+                                <th class="py-2">JENIS</th>
+                                <th class="py-2">KETERANGAN / DONATUR</th>
+                                <th class="py-2 text-right">JUMLAH</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-laporan-detail" class="divide-y divide-slate-100 text-slate-700">
+                            <tr><td colspan="4" class="py-6 text-center text-slate-400">Pilih periode untuk melihat laporan.</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- Tabel Transaksi Gabungan -->
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 overflow-x-auto print-area">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead>
-                        <tr class="text-slate-500 border-b border-slate-200">
-                            <th class="py-2">TANGGAL</th>
-                            <th class="py-2">JENIS</th>
-                            <th class="py-2">KETERANGAN / DONATUR</th>
-                            <th class="py-2 text-right">JUMLAH</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbl-laporan-detail" class="divide-y divide-slate-100 text-slate-700">
-                        <tr><td colspan="4" class="py-6 text-center text-slate-400">Pilih periode untuk melihat laporan.</td></tr>
-                    </tbody>
-                </table>
+            <!-- TAMPILAN 2: LAPORAN PEMBAYARAN DONATUR -->
+            <div id="container-laporan-donatur" class="space-y-4 hidden">
+                <!-- Ringkasan Donatur (3 Kolom) -->
+                <div class="grid grid-cols-3 gap-3 text-xs">
+                    <div class="p-3 rounded-lg border border-slate-200 bg-white summary-box">
+                        <span class="text-slate-500 font-medium">Total Donatur</span>
+                        <div class="text-base font-bold text-slate-800 mt-0.5" id="lap-donatur-total">0 Orang</div>
+                    </div>
+                    <div class="p-3 rounded-lg border border-slate-200 bg-white summary-box">
+                        <span class="text-slate-500 font-medium">Sudah Bayar</span>
+                        <div class="text-base font-bold text-emerald-600 mt-0.5" id="lap-donatur-sudah">0 Orang</div>
+                    </div>
+                    <div class="p-3 rounded-lg border border-slate-200 bg-white summary-box">
+                        <span class="text-slate-500 font-medium">Belum Bayar</span>
+                        <div class="text-base font-bold text-rose-600 mt-0.5" id="lap-donatur-belum">0 Orang</div>
+                    </div>
+                </div>
+
+                <!-- Tabel Matriks Pembayaran Donatur -->
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 overflow-x-auto print-area">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="text-slate-500 border-b border-slate-200">
+                                <th class="py-2">NAMA DONATUR</th>
+                                <th class="py-2 text-center">PERIODE 1</th>
+                                <th class="py-2 text-center">PERIODE 2</th>
+                                <th class="py-2 text-center">PERIODE 3</th>
+                                <th class="py-2 text-center">PERIODE 4</th>
+                                <th class="py-2 text-right">TOTAL DIBAYAR</th>
+                                <th class="py-2 text-center">STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-laporan-donatur-matrix" class="divide-y divide-slate-100 text-slate-700">
+                            <tr><td colspan="7" class="py-6 text-center text-slate-400">Memuat data donatur...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
         </div>
 
     </main>
@@ -486,6 +536,7 @@
         }
 
         function generateLaporan() {
+            const jenisLap = document.getElementById('filter-jenis-laporan').value;
             const bDariEl = document.getElementById('filter-bulan-dari');
             const bSampaiEl = document.getElementById('filter-bulan-sampai');
             
@@ -503,6 +554,14 @@
             const bDariText = bDariEl.options[bDariVal - 1].text;
             const bSampaiText = bSampaiEl.options[bSampaiVal - 1].text;
 
+            // Update Judul Cetak
+            const printTitleEl = document.getElementById('print-main-title');
+            if (jenisLap === 'donatur') {
+                printTitleEl.innerText = "Laporan Pembayaran Donatur Masjid Jami' Al Hidayah";
+            } else {
+                printTitleEl.innerText = "Laporan Keuangan Kas Masjid Jami' Al Hidayah";
+            }
+
             // Update Teks Keterangan Cetak PDF/Kertas
             if (bDariVal === bSampaiVal) {
                 document.getElementById('print-periode-text').innerText = `Periode: ${bDariText} ${tahun}`;
@@ -510,6 +569,18 @@
                 document.getElementById('print-periode-text').innerText = `Periode: ${bDariText} s.d. ${bSampaiText} ${tahun}`;
             }
 
+            if (jenisLap === 'kas') {
+                document.getElementById('container-laporan-kas').classList.remove('hidden');
+                document.getElementById('container-laporan-donatur').classList.add('hidden');
+                generateLaporanKas(bDariVal, bSampaiVal, tahun);
+            } else {
+                document.getElementById('container-laporan-kas').classList.add('hidden');
+                document.getElementById('container-laporan-donatur').classList.remove('hidden');
+                generateLaporanDonatur(bDariVal, bSampaiVal, tahun);
+            }
+        }
+
+        function generateLaporanKas(bDariVal, bSampaiVal, tahun) {
             // Filter Pemasukan Berdasarkan Rentang Bulan & Tahun
             const filteredMasuk = currentData.pemasukan.filter(item => {
                 if (!item.tanggal) return false;
@@ -567,6 +638,77 @@
                     </tr>
                 `;
             }).join('');
+        }
+
+        function generateLaporanDonatur(bDariVal, bSampaiVal, tahun) {
+            const donaturList = currentData.donatur || [];
+            const tbody = document.getElementById('tbl-laporan-donatur-matrix');
+
+            if (donaturList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">Belum ada data donatur.</td></tr>`;
+                document.getElementById('lap-donatur-total').innerText = '0 Orang';
+                document.getElementById('lap-donatur-sudah').innerText = '0 Orang';
+                document.getElementById('lap-donatur-belum').innerText = '0 Orang';
+                return;
+            }
+
+            let countSudah = 0;
+            let countBelum = 0;
+
+            const rowsHtml = donaturList.map(d => {
+                // Filter pemasukan untuk donatur ini di periode yang dipilih
+                const setoranDonatur = currentData.pemasukan.filter(p => {
+                    if (String(p.id_donatur) !== String(d.id)) return false;
+                    if (!p.tanggal) return false;
+                    const [y, m] = p.tanggal.split('-');
+                    if (y !== tahun) return false;
+                    const mInt = parseInt(m, 10);
+                    return mInt >= bDariVal && mInt <= bSampaiVal;
+                });
+
+                // Hitung total setoran per Periode 1, 2, 3, 4
+                let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
+
+                setoranDonatur.forEach(s => {
+                    const day = new Date(s.tanggal).getDate();
+                    const jml = Number(s.jumlah) || 0;
+                    if (day <= 7) p1 += jml;
+                    else if (day <= 14) p2 += jml;
+                    else if (day <= 21) p3 += jml;
+                    else p4 += jml;
+                });
+
+                const totalDibayar = p1 + p2 + p3 + p4;
+                const sudahBayar = totalDibayar > 0;
+
+                if (sudahBayar) countSudah++;
+                else countBelum++;
+
+                const formatCol = (val) => val > 0 
+                    ? `<span class="text-emerald-600 font-semibold">${formatRupiah(val)}</span>` 
+                    : `<span class="text-slate-300">-</span>`;
+
+                const statusBadge = sudahBayar 
+                    ? `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] badge-print">Sudah Bayar</span>`
+                    : `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px] badge-print">Belum Bayar</span>`;
+
+                return `
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-2.5 font-semibold text-slate-800">${d.nama}</td>
+                        <td class="py-2.5 text-center">${formatCol(p1)}</td>
+                        <td class="py-2.5 text-center">${formatCol(p2)}</td>
+                        <td class="py-2.5 text-center">${formatCol(p3)}</td>
+                        <td class="py-2.5 text-center">${formatCol(p4)}</td>
+                        <td class="py-2.5 text-right font-bold text-slate-800">${formatRupiah(totalDibayar)}</td>
+                        <td class="py-2.5 text-center">${statusBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            tbody.innerHTML = rowsHtml;
+            document.getElementById('lap-donatur-total').innerText = `${donaturList.length} Orang`;
+            document.getElementById('lap-donatur-sudah').innerText = `${countSudah} Orang`;
+            document.getElementById('lap-donatur-belum').innerText = `${countBelum} Orang`;
         }
 
         async function loadAdminData() {
