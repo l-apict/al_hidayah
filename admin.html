@@ -16,7 +16,7 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-        /* CSS KHUSUS CETAK / PDF (DIBUAT SIMPEL & FORMAL) */
+        /* CSS KHUSUS CETAK / PDF */
         @media print {
             nav, button, form, .no-print, .tab-nav { 
                 display: none !important; 
@@ -37,7 +37,7 @@
                 display: block !important; 
                 text-align: center; 
                 margin-bottom: 20px; 
-                border-b: 2px solid #000;
+                border-bottom: 2px solid #000;
                 padding-bottom: 10px;
             }
             .summary-box {
@@ -104,7 +104,7 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
 
-        <!-- Ringkasan Atas (Disembunyikan saat cetak) -->
+        <!-- Ringkasan Atas -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
             <div class="bg-slate-900 text-white p-4 rounded-xl shadow-sm border border-slate-800">
                 <span class="text-xs text-slate-400 uppercase font-semibold">Total Saldo Kas</span>
@@ -124,7 +124,7 @@
             </div>
         </div>
 
-        <!-- Tab Navigation (Disembunyikan saat cetak) -->
+        <!-- Tab Navigation -->
         <div class="border-b border-slate-200 flex gap-2 overflow-x-auto no-print tab-nav">
             <button onclick="switchTab('pemasukan')" id="tab-pemasukan" class="px-4 py-2.5 font-semibold text-xs sm:text-sm border-b-2 border-emerald-600 text-emerald-700 flex items-center gap-2 transition whitespace-nowrap">
                 <i class="fa-solid fa-circle-arrow-down"></i> Pemasukan
@@ -272,22 +272,38 @@
             </div>
         </div>
 
-        <!-- TAB 4: LAPORAN DETAIL (TAMPILAN RINGKAS & LAPORAN CETAK) -->
+        <!-- TAB 4: LAPORAN DETAIL -->
         <div id="content-laporan" class="space-y-4 hidden print-area">
             
-            <!-- Header Resmi Hanya Saat Cetak PDF/Kertas -->
+            <!-- Header Resmi Hasil Cetak -->
             <div class="hidden print-header">
                 <h2 class="text-lg font-bold uppercase tracking-wide">Laporan Keuangan Kas Masjid Jami' Al Hidayah</h2>
                 <p class="text-xs" id="print-periode-text">Periode: Semua</p>
             </div>
 
-            <!-- Filter Bar (Disembunyikan saat cetak) -->
+            <!-- Filter Bar: Dari Bulan s/d Bulan -->
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3 no-print">
                 <div class="flex flex-wrap items-center gap-3">
                     <div class="flex items-center gap-2">
-                        <label class="text-xs font-semibold text-slate-600">Bulan:</label>
-                        <select id="filter-bulan" onchange="generateLaporan()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
-                            <option value="all">Semua Bulan</option>
+                        <label class="text-xs font-semibold text-slate-600">Dari:</label>
+                        <select id="filter-bulan-dari" onchange="generateLaporan()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
+                            <option value="01">Januari</option>
+                            <option value="02">Februari</option>
+                            <option value="03">Maret</option>
+                            <option value="04">April</option>
+                            <option value="05">Mei</option>
+                            <option value="06">Juni</option>
+                            <option value="07">Juli</option>
+                            <option value="08">Agustus</option>
+                            <option value="09">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Desember</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs font-semibold text-slate-600">s/d:</label>
+                        <select id="filter-bulan-sampai" onchange="generateLaporan()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none">
                             <option value="01">Januari</option>
                             <option value="02">Februari</option>
                             <option value="03">Maret</option>
@@ -314,7 +330,7 @@
                 </button>
             </div>
 
-            <!-- Ringkasan Periode Simpel (Ringkas tanpa box bertumpuk) -->
+            <!-- Ringkasan Periode -->
             <div class="grid grid-cols-3 gap-3 text-xs">
                 <div class="p-3 rounded-lg border border-slate-200 bg-white summary-box">
                     <span class="text-slate-500 font-medium">Pemasukan Periode Ini</span>
@@ -466,38 +482,56 @@
             }
             selectTahun.innerHTML = options;
 
+            // Default: Dari Januari s/d Bulan Saat Ini
             const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
-            document.getElementById('filter-bulan').value = currentMonth;
+            document.getElementById('filter-bulan-dari').value = '01';
+            document.getElementById('filter-bulan-sampai').value = currentMonth;
         }
 
         function generateLaporan() {
-            const bulanSelect = document.getElementById('filter-bulan');
-            const bulan = bulanSelect.value;
-            const bulanText = bulanSelect.options[bulanSelect.selectedIndex].text;
+            const bDariEl = document.getElementById('filter-bulan-dari');
+            const bSampaiEl = document.getElementById('filter-bulan-sampai');
+            
+            let bDariVal = parseInt(bDariEl.value, 10);
+            let bSampaiVal = parseInt(bSampaiEl.value, 10);
             const tahun = document.getElementById('filter-tahun').value;
 
-            // Update Teks Periode untuk Cetakan Formal
-            document.getElementById('print-periode-text').innerText = `Periode: ${bulanText} ${tahun}`;
+            // Jika filter 'Dari' lebih besar dari 'Sampai', otomatis disesuaikan
+            if (bDariVal > bSampaiVal) {
+                const temp = bDariVal;
+                bDariVal = bSampaiVal;
+                bSampaiVal = temp;
+            }
 
-            // Filter Pemasukan
+            const bDariText = bDariEl.options[bDariVal - 1].text;
+            const bSampaiText = bSampaiEl.options[bSampaiVal - 1].text;
+
+            // Update Teks Keterangan Cetak PDF/Kertas
+            if (bDariVal === bSampaiVal) {
+                document.getElementById('print-periode-text').innerText = `Periode: ${bDariText} ${tahun}`;
+            } else {
+                document.getElementById('print-periode-text').innerText = `Periode: ${bDariText} s.d. ${bSampaiText} ${tahun}`;
+            }
+
+            // Filter Pemasukan Berdasarkan Rentang Bulan & Tahun
             const filteredMasuk = currentData.pemasukan.filter(item => {
                 if (!item.tanggal) return false;
                 const [y, m] = item.tanggal.split('-');
                 if (y !== tahun) return false;
-                if (bulan !== 'all' && m !== bulan) return false;
-                return true;
+                const mInt = parseInt(m, 10);
+                return mInt >= bDariVal && mInt <= bSampaiVal;
             });
 
-            // Filter Pengeluaran
+            // Filter Pengeluaran Berdasarkan Rentang Bulan & Tahun
             const filteredKeluar = currentData.pengeluaran.filter(item => {
                 if (!item.tanggal) return false;
                 const [y, m] = item.tanggal.split('-');
                 if (y !== tahun) return false;
-                if (bulan !== 'all' && m !== bulan) return false;
-                return true;
+                const mInt = parseInt(m, 10);
+                return mInt >= bDariVal && mInt <= bSampaiVal;
             });
 
-            // Ringkasan
+            // Hitung Totals Ringkasan
             const totMasuk = filteredMasuk.reduce((a, b) => a + (Number(b.jumlah) || 0), 0);
             const totKeluar = filteredKeluar.reduce((a, b) => a + (Number(b.jumlah) || 0), 0);
             const selisih = totMasuk - totKeluar;
@@ -506,7 +540,7 @@
             document.getElementById('lap-stat-keluar').innerText = formatRupiah(totKeluar);
             document.getElementById('lap-stat-selisih').innerText = formatRupiah(selisih);
 
-            // Gabungkan Transaksi & Sort berdasarkan tanggal
+            // Gabungkan Transaksi & Urutkan Berdasarkan Tanggal
             const combined = [
                 ...filteredMasuk.map(i => ({ ...i, type: 'pemasukan' })),
                 ...filteredKeluar.map(i => ({ ...i, type: 'pengeluaran' }))
