@@ -341,9 +341,7 @@
                     <div class="text-base font-bold text-rose-600 mt-0.5" id="lap-stat-keluar">Rp 0</div>
                 </div>
                 <div class="p-3 rounded-lg border border-slate-200 bg-white summary-box">
-                    <span class="text-slate-500 font-medium">Selisih Kas</span>
-                    <div class="text-base font-bold text-slate-800 mt-0.5" id="lap-stat-selisih">Rp 0</div>
-                </div>
+               </div>
             </div>
 
             <!-- Tabel Transaksi Gabungan -->
@@ -534,11 +532,11 @@
             // Hitung Totals Ringkasan
             const totMasuk = filteredMasuk.reduce((a, b) => a + (Number(b.jumlah) || 0), 0);
             const totKeluar = filteredKeluar.reduce((a, b) => a + (Number(b.jumlah) || 0), 0);
-            const selisih = totMasuk - totKeluar;
+            
 
             document.getElementById('lap-stat-masuk').innerText = formatRupiah(totMasuk);
             document.getElementById('lap-stat-keluar').innerText = formatRupiah(totKeluar);
-            document.getElementById('lap-stat-selisih').innerText = formatRupiah(selisih);
+            
 
             // Gabungkan Transaksi & Urutkan Berdasarkan Tanggal
             const combined = [
