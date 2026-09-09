@@ -64,47 +64,52 @@
     <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
         
         <!-- Hero Account Summary Card (Banking Style) -->
-        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-900 text-white p-6 sm:p-8 shadow-2xl shadow-emerald-950/20 border border-emerald-800/50">
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-900 text-white p-6 sm:p-8 shadow-2xl shadow-emerald-950/20 border border-emerald-800/50 space-y-6">
             <!-- Decorative Glow Backgrounds -->
             <div class="absolute -right-12 -top-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
             <div class="absolute right-20 -bottom-20 w-80 h-80 bg-teal-400/10 rounded-full blur-3xl pointer-events-none"></div>
             
-            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                <!-- Total Saldo & Ucapan Terima Kasih -->
-                <div class="max-w-2xl">
-                    <div class="flex items-center gap-2 text-emerald-300 text-xs font-semibold tracking-wider uppercase mb-2">
-                        <i class="fa-solid fa-wallet"></i>
-                        <span>Total Saldo Kas Masjid</span>
-                    </div>
-                    <div class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-3" id="total-saldo">
-                        Rp 0
-                    </div>
-                    <p class="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-normal bg-white/5 p-3.5 rounded-2xl border border-white/10 shadow-inner">
+            <!-- Header Total Saldo Kas -->
+            <div class="relative z-10">
+                <div class="flex items-center gap-2 text-emerald-300 text-xs font-semibold tracking-wider uppercase mb-1">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span>Total Saldo Kas Masjid</span>
+                </div>
+                <div class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white" id="total-saldo">
+                    Rp 0
+                </div>
+            </div>
+
+            <!-- Baris Sejajar: Ucapan Terima Kasih (Kata-kata) & Card Total Pemasukan/Pengeluaran -->
+            <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+                <!-- Ucapan Terima Kasih -->
+                <div class="lg:col-span-7">
+                    <p class="text-xs sm:text-sm text-emerald-100/90 leading-relaxed font-normal bg-white/5 p-4 rounded-2xl border border-white/10 shadow-inner">
                         "Terima kasih banyak atas bantuan dan sedekah yang telah Bapak/Ibu berikan untuk Masjid Jamie' Al Hidayah.
                         Semoga Allah SWT menerima amal ibadah ini, melipatgandakan rezeki, serta memberikan berkah dan kesehatan yang berlimpah untuk Bapak/Ibu sekeluarga. Aamiin ya Rabbal 'Alamin."
                     </p>
                 </div>
 
                 <!-- Sub-metrics Chips (Total Pemasukan & Pengeluaran) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full lg:w-auto shrink-0 min-w-full sm:min-w-[360px]">
+                <div class="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 flex flex-col justify-between">
-                        <div class="flex items-center gap-2 text-emerald-300 text-xs font-medium mb-2 whitespace-nowrap">
+                        <div class="flex items-center gap-2 text-emerald-300 text-xs font-medium mb-2">
                             <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-arrow-down text-xs"></i>
                             </div>
-                            <span>Total Pemasukan</span>
+                            <span class="truncate">Total Pemasukan</span>
                         </div>
-                        <p class="text-base sm:text-lg font-bold text-white tracking-tight whitespace-nowrap" id="total-pemasukan">Rp 0</p>
+                        <p class="text-base sm:text-lg font-bold text-white tracking-tight" id="total-pemasukan">Rp 0</p>
                     </div>
 
                     <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 flex flex-col justify-between">
-                        <div class="flex items-center gap-2 text-rose-300 text-xs font-medium mb-2 whitespace-nowrap">
+                        <div class="flex items-center gap-2 text-rose-300 text-xs font-medium mb-2">
                             <div class="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-300 flex items-center justify-center shrink-0">
                                 <i class="fa-solid fa-arrow-up text-xs"></i>
                             </div>
-                            <span>Total Pengeluaran</span>
+                            <span class="truncate">Total Pengeluaran</span>
                         </div>
-                        <p class="text-base sm:text-lg font-bold text-white tracking-tight whitespace-nowrap" id="total-pengeluaran">Rp 0</p>
+                        <p class="text-base sm:text-lg font-bold text-white tracking-tight" id="total-pengeluaran">Rp 0</p>
                     </div>
                 </div>
             </div>
