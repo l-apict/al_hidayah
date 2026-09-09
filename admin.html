@@ -18,6 +18,9 @@
 
         /* CSS KHUSUS CETAK / PDF */
         @media print {
+            @page {
+        margin: 12mm;
+    }
             nav, button, form, .no-print, .tab-nav { 
                 display: none !important; 
             }
