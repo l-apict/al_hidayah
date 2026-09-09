@@ -14,6 +14,23 @@
     <script src="config.js"></script>
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* Custom Scrollbar untuk Tabel */
+        .table-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .table-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .table-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
@@ -110,20 +127,22 @@
                 </div>
 
                 <div class="p-4 flex-1 overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="text-slate-400 font-semibold border-b border-slate-100">
-                                <th class="pb-3 pl-2">TANGGAL</th>
-                                <th class="pb-3">KETERANGAN</th>
-                                <th class="pb-3 pr-2 text-right">JUMLAH</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-pemasukan" class="divide-y divide-slate-100 text-slate-700 font-medium">
-                            <tr>
-                                <td colspan="3" class="py-8 text-center text-slate-400">Memuat data...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="max-h-[420px] overflow-y-auto table-scroll">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="text-slate-400 font-semibold border-b border-slate-100">
+                                    <th class="pb-3 pt-1 px-2 bg-white sticky top-0 z-10">TANGGAL</th>
+                                    <th class="pb-3 pt-1 px-2 bg-white sticky top-0 z-10">KETERANGAN</th>
+                                    <th class="pb-3 pt-1 px-2 bg-white sticky top-0 z-10 text-right">JUMLAH</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-pemasukan" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                                <tr>
+                                    <td colspan="3" class="py-8 text-center text-slate-400">Memuat data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -143,24 +162,120 @@
                 </div>
 
                 <div class="p-4 flex-1 overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="text-slate-400 font-semibold border-b border-slate-100">
-                                <th class="pb-3 pl-2">TANGGAL</th>
-                                <th class="pb-3">KETERANGAN</th>
-                                <th class="pb-3 pr-2 text-right">JUMLAH</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-pengeluaran" class="divide-y divide-slate-100 text-slate-700 font-medium">
-                            <tr>
-                                <td colspan="3" class="py-8 text-center text-slate-400">Memuat data...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="max-h-[420px] overflow-y-auto table-scroll">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="text-slate-400 font-semibold border-b border-slate-100">
+                                    <th class="pb-3 pt-1 px-2 bg-white sticky top-0 z-10">TANGGAL</th>
+                                    <th class="pb-3 pt-1 px-2 bg-white sticky top-0 z-10">KETERANGAN</th>
+                                    <th class="pb-3 pt-1 px-2 bg-white sticky top-0 z-10 text-right">JUMLAH</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-pengeluaran" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                                <tr>
+                                    <td colspan="3" class="py-8 text-center text-slate-400">Memuat data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
         </div>
+
+        <!-- Laporan Pembayaran Donatur Card -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-hand-holding-heart"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm">Laporan Pembayaran Donatur</h3>
+                        <p class="text-xs text-slate-500">Status rekapitulasi setoran donatur rutin</p>
+                    </div>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="flex flex-wrap items-center gap-2 text-xs">
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-medium text-slate-600">Dari:</label>
+                        <select id="filter-bulan-dari" onchange="generateLaporanDonatur()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg outline-none font-medium text-slate-700">
+                            <option value="01">Januari</option>
+                            <option value="02">Februari</option>
+                            <option value="03">Maret</option>
+                            <option value="04">April</option>
+                            <option value="05">Mei</option>
+                            <option value="06">Juni</option>
+                            <option value="07">Juli</option>
+                            <option value="08">Agustus</option>
+                            <option value="09">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Desember</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-medium text-slate-600">s/d:</label>
+                        <select id="filter-bulan-sampai" onchange="generateLaporanDonatur()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg outline-none font-medium text-slate-700">
+                            <option value="01">Januari</option>
+                            <option value="02">Februari</option>
+                            <option value="03">Maret</option>
+                            <option value="04">April</option>
+                            <option value="05">Mei</option>
+                            <option value="06">Juni</option>
+                            <option value="07">Juli</option>
+                            <option value="08">Agustus</option>
+                            <option value="09">September</option>
+                            <option value="10">Oktober</option>
+                            <option value="11">November</option>
+                            <option value="12">Desember</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <label class="font-medium text-slate-600">Tahun:</label>
+                        <select id="filter-tahun" onchange="generateLaporanDonatur()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg outline-none font-medium text-slate-700">
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ringkasan Stat Donatur -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div class="p-3 rounded-xl border border-slate-200/80 bg-slate-50/50">
+                    <span class="text-slate-500 font-medium">Total Donatur</span>
+                    <div class="text-base font-bold text-slate-800 mt-0.5" id="lap-donatur-total">0 Orang</div>
+                </div>
+                <div class="p-3 rounded-xl border border-emerald-100 bg-emerald-50/40">
+                    <span class="text-slate-500 font-medium">Sudah Bayar</span>
+                    <div class="text-base font-bold text-emerald-600 mt-0.5" id="lap-donatur-sudah">0 Orang</div>
+                </div>
+                <div class="p-3 rounded-xl border border-rose-100 bg-rose-50/40">
+                    <span class="text-slate-500 font-medium">Belum Bayar</span>
+                    <div class="text-base font-bold text-rose-600 mt-0.5" id="lap-donatur-belum">0 Orang</div>
+                </div>
+            </div>
+
+            <!-- Tabel Donatur -->
+            <div class="overflow-x-auto">
+                <div class="max-h-[420px] overflow-y-auto table-scroll">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="text-slate-400 font-semibold border-b border-slate-100">
+                                <th class="pb-3 pt-1 px-2 bg-white sticky top-0 z-10">NAMA DONATUR</th>
+                                <th class="pb-3 pt-1 px-2 bg-white sticky top-0 z-10 text-center">TANGGAL BAYAR</th>
+                                <th class="pb-3 pt-1 px-2 bg-white sticky top-0 z-10 text-right">JUMLAH (RP)</th>
+                                <th class="pb-3 pt-1 px-2 bg-white sticky top-0 z-10 text-center">STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl-laporan-donatur-matrix" class="divide-y divide-slate-100 text-slate-700 font-medium">
+                            <tr><td colspan="4" class="py-8 text-center text-slate-400">Memuat data donatur...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Footer -->
@@ -172,6 +287,8 @@
 
     <!-- Script Fetch Data -->
     <script>
+        let currentData = { pemasukan: [], pengeluaran: [], donatur: [] };
+
         function formatRupiah(number) {
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency',
@@ -186,12 +303,96 @@
             return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
         }
 
+        function initTahunFilter() {
+            const selectTahun = document.getElementById('filter-tahun');
+            const currentYear = new Date().getFullYear();
+            let options = '';
+            for (let y = currentYear + 1; y >= currentYear - 4; y--) {
+                options += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`;
+            }
+            selectTahun.innerHTML = options;
+
+            const currentMonth = String(new Date().getMonth() + 1).padStart(2, '0');
+            document.getElementById('filter-bulan-dari').value = '01';
+            document.getElementById('filter-bulan-sampai').value = currentMonth;
+        }
+
+        function generateLaporanDonatur() {
+            const donaturList = currentData.donatur || [];
+            const tbody = document.getElementById('tbl-laporan-donatur-matrix');
+
+            let bDariVal = parseInt(document.getElementById('filter-bulan-dari').value, 10);
+            let bSampaiVal = parseInt(document.getElementById('filter-bulan-sampai').value, 10);
+            const tahun = document.getElementById('filter-tahun').value;
+
+            if (bDariVal > bSampaiVal) {
+                const temp = bDariVal;
+                bDariVal = bSampaiVal;
+                bSampaiVal = temp;
+            }
+
+            if (donaturList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-slate-400">Belum ada data donatur.</td></tr>`;
+                document.getElementById('lap-donatur-total').innerText = '0 Orang';
+                document.getElementById('lap-donatur-sudah').innerText = '0 Orang';
+                document.getElementById('lap-donatur-belum').innerText = '0 Orang';
+                return;
+            }
+
+            let countSudah = 0;
+            let countBelum = 0;
+
+            const rowsHtml = donaturList.map(d => {
+                const setoranDonatur = currentData.pemasukan.filter(p => {
+                    if (String(p.id_donatur) !== String(d.id)) return false;
+                    if (!p.tanggal) return false;
+                    const [y, m] = p.tanggal.split('-');
+                    if (y !== tahun) return false;
+                    const mInt = parseInt(m, 10);
+                    return mInt >= bDariVal && mInt <= bSampaiVal;
+                });
+
+                const totalDibayar = setoranDonatur.reduce((acc, s) => acc + (Number(s.jumlah) || 0), 0);
+                
+                let tglBayarStr = '-';
+                if (setoranDonatur.length > 0) {
+                    const listTgl = setoranDonatur
+                        .sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal))
+                        .map(s => formatDate(s.tanggal));
+                    tglBayarStr = [...new Set(listTgl)].join(', ');
+                }
+
+                const sudahBayar = totalDibayar > 0;
+
+                if (sudahBayar) countSudah++;
+                else countBelum++;
+
+                const statusBadge = sudahBayar 
+                    ? `<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">Sudah Bayar</span>`
+                    : `<span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px]">Belum Bayar</span>`;
+
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-2 font-semibold text-slate-800">${d.nama}</td>
+                        <td class="py-3 px-2 text-center text-slate-600">${tglBayarStr}</td>
+                        <td class="py-3 px-2 text-right font-bold text-slate-800">${formatRupiah(totalDibayar)}</td>
+                        <td class="py-3 px-2 text-center">${statusBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            tbody.innerHTML = rowsHtml;
+            document.getElementById('lap-donatur-total').innerText = `${donaturList.length} Orang`;
+            document.getElementById('lap-donatur-sudah').innerText = `${countSudah} Orang`;
+            document.getElementById('lap-donatur-belum').innerText = `${countBelum} Orang`;
+        }
+
         async function loadDashboardData() {
             try {
-                // Fetch Pemasukan & Pengeluaran dari Supabase (pakai variabel 'db')
+                // Fetch Data dari Supabase
                 const { data: pemasukan } = await db
                     .from('pemasukan')
-                    .select('*')
+                    .select('*, donatur(id, nama)')
                     .order('tanggal', { ascending: false });
 
                 const { data: pengeluaran } = await db
@@ -199,9 +400,18 @@
                     .select('*')
                     .order('tanggal', { ascending: false });
 
+                const { data: donatur } = await db
+                    .from('donatur')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                currentData.pemasukan = pemasukan || [];
+                currentData.pengeluaran = pengeluaran || [];
+                currentData.donatur = donatur || [];
+
                 // Kalkulasi Total
-                const totalMasuk = (pemasukan || []).reduce((acc, item) => acc + (Number(item.jumlah) || 0), 0);
-                const totalKeluar = (pengeluaran || []).reduce((acc, item) => acc + (Number(item.jumlah) || 0), 0);
+                const totalMasuk = currentData.pemasukan.reduce((acc, item) => acc + (Number(item.jumlah) || 0), 0);
+                const totalKeluar = currentData.pengeluaran.reduce((acc, item) => acc + (Number(item.jumlah) || 0), 0);
                 const totalSaldo = totalMasuk - totalKeluar;
 
                 // Render Angka Utama
@@ -210,17 +420,17 @@
                 document.getElementById('total-pengeluaran').innerText = formatRupiah(totalKeluar);
 
                 // Render Badge Jumlah Transaksi
-                document.getElementById('count-pemasukan').innerText = `${pemasukan ? pemasukan.length : 0} Transaksi`;
-                document.getElementById('count-pengeluaran').innerText = `${pengeluaran ? pengeluaran.length : 0} Transaksi`;
+                document.getElementById('count-pemasukan').innerText = `${currentData.pemasukan.length} Transaksi`;
+                document.getElementById('count-pengeluaran').innerText = `${currentData.pengeluaran.length} Transaksi`;
 
                 // Render Tabel Pemasukan
                 const tbodyMasuk = document.getElementById('table-pemasukan');
-                if (pemasukan && pemasukan.length > 0) {
-                    tbodyMasuk.innerHTML = pemasukan.map(item => `
+                if (currentData.pemasukan.length > 0) {
+                    tbodyMasuk.innerHTML = currentData.pemasukan.map(item => `
                         <tr class="hover:bg-slate-50 transition">
-                            <td class="py-3 pl-2 text-slate-500 font-normal whitespace-nowrap">${formatDate(item.tanggal)}</td>
-                            <td class="py-3 pr-2 font-medium text-slate-800">${item.keterangan || '-'}</td>
-                            <td class="py-3 pr-2 text-right font-bold text-emerald-600 whitespace-nowrap">+${formatRupiah(item.jumlah)}</td>
+                            <td class="py-3 px-2 text-slate-500 font-normal whitespace-nowrap">${formatDate(item.tanggal)}</td>
+                            <td class="py-3 px-2 font-medium text-slate-800">${item.keterangan || '-'}${item.donatur ? `<span class="text-slate-400 font-normal"> (${item.donatur.nama})</span>` : ''}</td>
+                            <td class="py-3 px-2 text-right font-bold text-emerald-600 whitespace-nowrap">+${formatRupiah(item.jumlah)}</td>
                         </tr>
                     `).join('');
                 } else {
@@ -229,17 +439,21 @@
 
                 // Render Tabel Pengeluaran
                 const tbodyKeluar = document.getElementById('table-pengeluaran');
-                if (pengeluaran && pengeluaran.length > 0) {
-                    tbodyKeluar.innerHTML = pengeluaran.map(item => `
+                if (currentData.pengeluaran.length > 0) {
+                    tbodyKeluar.innerHTML = currentData.pengeluaran.map(item => `
                         <tr class="hover:bg-slate-50 transition">
-                            <td class="py-3 pl-2 text-slate-500 font-normal whitespace-nowrap">${formatDate(item.tanggal)}</td>
-                            <td class="py-3 pr-2 font-medium text-slate-800">${item.keterangan || '-'}</td>
-                            <td class="py-3 pr-2 text-right font-bold text-rose-600 whitespace-nowrap">-${formatRupiah(item.jumlah)}</td>
+                            <td class="py-3 px-2 text-slate-500 font-normal whitespace-nowrap">${formatDate(item.tanggal)}</td>
+                            <td class="py-3 px-2 font-medium text-slate-800">${item.keterangan || '-'}</td>
+                            <td class="py-3 px-2 text-right font-bold text-rose-600 whitespace-nowrap">-${formatRupiah(item.jumlah)}</td>
                         </tr>
                     `).join('');
                 } else {
                     tbodyKeluar.innerHTML = `<tr><td colspan="3" class="py-8 text-center text-slate-400">Belum ada data pengeluaran.</td></tr>`;
                 }
+
+                // Inisialisasi Filter & Laporan Donatur
+                initTahunFilter();
+                generateLaporanDonatur();
 
             } catch (e) {
                 console.error('Error saat memuat data:', e);
