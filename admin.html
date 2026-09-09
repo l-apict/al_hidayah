@@ -36,8 +36,10 @@
                 padding: 0 !important; 
                 margin: 0 !important;
             }
-            .print-header { 
+            .print-header, .print-signature { 
                 display: block !important; 
+            }
+            .print-header { 
                 text-align: center; 
                 margin-bottom: 20px; 
                 border-bottom: 2px solid #000;
@@ -419,8 +421,9 @@
                     </table>
                 </div>
             </div>
-            <!-- Bagian Tanda Tangan / Pengesahan -->
-            <div class="mt-10 pt-4 text-xs text-slate-800 break-inside-avoid">
+
+            <!-- Bagian Tanda Tangan / Pengesahan (Hanya Muncul di Cetak PDF) -->
+            <div class="hidden print-signature mt-10 pt-4 text-xs text-slate-800 break-inside-avoid">
                 <p class="text-center font-semibold mb-6">Mengetahui,</p>
                 <div class="flex justify-around items-start">
                     <div class="text-center">
