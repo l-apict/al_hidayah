@@ -164,7 +164,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Jumlah (Rp)</label>
-                        <input type="number" id="in-jml-masuk" placeholder="0" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input type="text" id="in-jml-masuk" placeholder="0" oninput="formatInputRupiah(this)" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                     <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg text-xs transition">
                         Simpan Pemasukan
@@ -207,7 +207,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Jumlah (Rp)</label>
-                        <input type="number" id="in-jml-keluar" placeholder="0" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-rose-500 outline-none">
+                        <input type="text" id="in-jml-keluar" placeholder="0" oninput="formatInputRupiah(this)" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-rose-500 outline-none">
                     </div>
                     <button type="submit" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2 rounded-lg text-xs transition">
                         Simpan Pengeluaran
@@ -475,6 +475,22 @@
             return new Date(dStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
         }
 
+        // Format otomatis angka ber-titik saat pengetikan di input
+        function formatInputRupiah(el) {
+            let val = el.value.replace(/\D/g, '');
+            if (val) {
+                el.value = new Intl.NumberFormat('id-ID').format(val);
+            } else {
+                el.value = '';
+            }
+        }
+
+        // Konversi string ber-titik kembali menjadi Angka murni
+        function parseRupiahNumber(valStr) {
+            if (!valStr) return 0;
+            return Number(valStr.toString().replace(/\D/g, '')) || 0;
+        }
+
         function getMingguKe(dateStr) {
             if (!dateStr) return '-';
             const day = new Date(dateStr).getDate();
@@ -581,7 +597,6 @@
         }
 
         function generateLaporanKas(bDariVal, bSampaiVal, tahun) {
-            // Filter Pemasukan Berdasarkan Rentang Bulan & Tahun
             const filteredMasuk = currentData.pemasukan.filter(item => {
                 if (!item.tanggal) return false;
                 const [y, m] = item.tanggal.split('-');
@@ -590,7 +605,6 @@
                 return mInt >= bDariVal && mInt <= bSampaiVal;
             });
 
-            // Filter Pengeluaran Berdasarkan Rentang Bulan & Tahun
             const filteredKeluar = currentData.pengeluaran.filter(item => {
                 if (!item.tanggal) return false;
                 const [y, m] = item.tanggal.split('-');
@@ -599,14 +613,12 @@
                 return mInt >= bDariVal && mInt <= bSampaiVal;
             });
 
-            // Hitung Totals Ringkasan
             const totMasuk = filteredMasuk.reduce((a, b) => a + (Number(b.jumlah) || 0), 0);
             const totKeluar = filteredKeluar.reduce((a, b) => a + (Number(b.jumlah) || 0), 0);
 
             document.getElementById('lap-stat-masuk').innerText = formatRupiah(totMasuk);
             document.getElementById('lap-stat-keluar').innerText = formatRupiah(totKeluar);
 
-            // Gabungkan Transaksi & Urutkan Berdasarkan Tanggal
             const combined = [
                 ...filteredMasuk.map(i => ({ ...i, type: 'pemasukan' })),
                 ...filteredKeluar.map(i => ({ ...i, type: 'pengeluaran' }))
@@ -656,7 +668,6 @@
             let countBelum = 0;
 
             const rowsHtml = donaturList.map(d => {
-                // Filter pemasukan untuk donatur ini di periode yang dipilih
                 const setoranDonatur = currentData.pemasukan.filter(p => {
                     if (String(p.id_donatur) !== String(d.id)) return false;
                     if (!p.tanggal) return false;
@@ -666,7 +677,6 @@
                     return mInt >= bDariVal && mInt <= bSampaiVal;
                 });
 
-                // Hitung total setoran per Periode 1, 2, 3, 4
                 let p1 = 0, p2 = 0, p3 = 0, p4 = 0;
 
                 setoranDonatur.forEach(s => {
@@ -781,30 +791,32 @@
             }
         }
 
-        // Form Submit
+        // Form Submit Pemasukan
         document.getElementById('form-pemasukan').addEventListener('submit', async (e) => {
             e.preventDefault();
             const { error } = await db.from('pemasukan').insert([{ 
                 tanggal: document.getElementById('in-tgl-masuk').value, 
                 id_donatur: document.getElementById('in-donatur-masuk').value || null, 
                 keterangan: document.getElementById('in-ket-masuk').value, 
-                jumlah: Number(document.getElementById('in-jml-masuk').value) 
+                jumlah: parseRupiahNumber(document.getElementById('in-jml-masuk').value) 
             }]);
             if (error) alert(error.message);
             else { e.target.reset(); document.getElementById('info-minggu-masuk').innerText = ''; loadAdminData(); }
         });
 
+        // Form Submit Pengeluaran
         document.getElementById('form-pengeluaran').addEventListener('submit', async (e) => {
             e.preventDefault();
             const { error } = await db.from('pengeluaran').insert([{ 
                 tanggal: document.getElementById('in-tgl-keluar').value, 
                 keterangan: document.getElementById('in-ket-keluar').value, 
-                jumlah: Number(document.getElementById('in-jml-keluar').value) 
+                jumlah: parseRupiahNumber(document.getElementById('in-jml-keluar').value) 
             }]);
             if (error) alert(error.message);
             else { e.target.reset(); document.getElementById('info-minggu-keluar').innerText = ''; loadAdminData(); }
         });
 
+        // Form Submit Donatur
         document.getElementById('form-donatur').addEventListener('submit', async (e) => {
             e.preventDefault();
             const { error } = await db.from('donatur').insert([{ 
@@ -816,13 +828,15 @@
             else { e.target.reset(); loadAdminData(); }
         });
 
-        // Edit & Delete
+        // Edit Modal Handler
         function openEditModal(table, id) {
             const item = currentData[table].find(x => String(x.id) === String(id));
             if (!item) return;
 
             document.getElementById('edit-table').value = table;
             document.getElementById('edit-id').value = id;
+
+            const editF2El = document.getElementById('edit-f2');
 
             if (table === 'pemasukan') {
                 document.getElementById('modal-title').innerText = 'Edit Pemasukan';
@@ -834,8 +848,8 @@
                 document.getElementById('lbl-edit-f1').innerText = 'Keterangan';
                 document.getElementById('edit-f1').value = item.keterangan || '';
                 document.getElementById('lbl-edit-f2').innerText = 'Jumlah (Rp)';
-                document.getElementById('edit-f2').type = 'number';
-                document.getElementById('edit-f2').value = item.jumlah || '';
+                editF2El.setAttribute('oninput', 'formatInputRupiah(this)');
+                editF2El.value = item.jumlah ? new Intl.NumberFormat('id-ID').format(item.jumlah) : '';
             } else if (table === 'pengeluaran') {
                 document.getElementById('modal-title').innerText = 'Edit Pengeluaran';
                 document.getElementById('group-edit-tgl').classList.remove('hidden');
@@ -845,8 +859,8 @@
                 document.getElementById('lbl-edit-f1').innerText = 'Keterangan';
                 document.getElementById('edit-f1').value = item.keterangan || '';
                 document.getElementById('lbl-edit-f2').innerText = 'Jumlah (Rp)';
-                document.getElementById('edit-f2').type = 'number';
-                document.getElementById('edit-f2').value = item.jumlah || '';
+                editF2El.setAttribute('oninput', 'formatInputRupiah(this)');
+                editF2El.value = item.jumlah ? new Intl.NumberFormat('id-ID').format(item.jumlah) : '';
             } else {
                 document.getElementById('modal-title').innerText = 'Edit Donatur';
                 document.getElementById('group-edit-tgl').classList.add('hidden');
@@ -855,8 +869,8 @@
                 document.getElementById('lbl-edit-f1').innerText = 'Nama';
                 document.getElementById('edit-f1').value = item.nama || '';
                 document.getElementById('lbl-edit-f2').innerText = 'Kontak';
-                document.getElementById('edit-f2').type = 'text';
-                document.getElementById('edit-f2').value = item.kontak || '';
+                editF2El.removeAttribute('oninput');
+                editF2El.value = item.kontak || '';
                 document.getElementById('edit-f3').value = item.keterangan || '';
             }
 
@@ -878,13 +892,13 @@
                     tanggal: document.getElementById('edit-tgl').value,
                     id_donatur: document.getElementById('edit-donatur').value || null,
                     keterangan: document.getElementById('edit-f1').value,
-                    jumlah: Number(document.getElementById('edit-f2').value)
+                    jumlah: parseRupiahNumber(document.getElementById('edit-f2').value)
                 };
             } else if (table === 'pengeluaran') {
                 payload = {
                     tanggal: document.getElementById('edit-tgl').value,
                     keterangan: document.getElementById('edit-f1').value,
-                    jumlah: Number(document.getElementById('edit-f2').value)
+                    jumlah: parseRupiahNumber(document.getElementById('edit-f2').value)
                 };
             } else {
                 payload = {
