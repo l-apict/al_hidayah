@@ -37,17 +37,17 @@
 
         <!-- 2 Pilihan Akses Card -->
         <div class="grid grid-cols-2 gap-3">
-            <!-- Pilihan 1: Publik / Jamaah -->
-            <button type="button" onclick="pilihAkses('publik')" id="btn-publik" class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:border-emerald-500 hover:bg-emerald-50/30 transition-all text-center group">
+            <!-- Pilihan 1: Jamaah / Donatur (Langsung ke index.html) -->
+            <a href="index.html" class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:border-emerald-500 hover:bg-emerald-50/30 transition-all text-center group">
                 <div class="w-10 h-10 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center mb-2 group-hover:bg-emerald-600 group-hover:text-white transition">
                     <i class="fa-solid fa-users text-sm"></i>
                 </div>
                 <span class="text-xs font-bold text-slate-800 group-hover:text-emerald-700">Jamaah / Donatur</span>
                 <span class="text-[10px] text-slate-400 mt-0.5">Lihat Kas Masjid</span>
-            </button>
+            </a>
 
-            <!-- Pilihan 2: Admin / Pengurus -->
-            <button type="button" onclick="pilihAkses('admin')" id="btn-admin" class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:border-emerald-500 hover:bg-emerald-50/30 transition-all text-center group">
+            <!-- Pilihan 2: Pengurus Masjid (Membuka Form Login Password) -->
+            <button type="button" onclick="tampilkanFormAdmin()" id="btn-admin" class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:border-emerald-500 hover:bg-emerald-50/30 transition-all text-center group">
                 <div class="w-10 h-10 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center mb-2 group-hover:bg-emerald-600 group-hover:text-white transition">
                     <i class="fa-solid fa-user-shield text-sm"></i>
                 </div>
@@ -56,20 +56,11 @@
             </button>
         </div>
 
-        <!-- Section Action 1: Redirect Ke Publik -->
-        <div id="section-publik" class="hidden text-center space-y-4 pt-2 border-t border-slate-100">
-            <p class="text-xs text-slate-600">Akses halaman transparansi laporan keuangan kas masjid secara terbuka.</p>
-            <a href="index.html" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition">
-                <span>Buka Laporan Transparansi Kas</span>
-                <i class="fa-solid fa-arrow-right text-xs"></i>
-            </a>
-        </div>
-
-        <!-- Section Action 2: Form Login Admin -->
-        <form id="login-form" class="hidden space-y-4 pt-2 border-t border-slate-100">
+        <!-- Form Login Password Admin -->
+        <form id="login-form" class="hidden space-y-4 pt-4 border-t border-slate-100">
             <div class="text-left space-y-1">
                 <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Login Pengurus Admin</h3>
-                <p class="text-[11px] text-slate-500">Masukkan username & password terdaftar.</p>
+                <p class="text-[11px] text-slate-500">Masukkan akun pengurus untuk mengelola kas.</p>
             </div>
 
             <div class="space-y-3">
@@ -108,37 +99,21 @@
 
     </div>
 
-    <!-- Script Logic Supabase & UI -->
+    <!-- Script Supabase & Logic UI -->
     <script>
-        const supabaseUrl = 'https://khscktqunxezfeibzotr.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtoc2NrdHF1bnhlemZlaWJ6b3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3MzQ3NjgsImV4cCI6MjEwNDMxMDc2OH0.C_O1yzywEhDcTpWCUcL1EtqDGJj2NiHwgwbYLZBKrX4';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        const SUPABASE_URL = 'https://khscktqunxezfeibzotr.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtoc2NrdHF1bnhlemZlaWJ6b3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3MzQ3NjgsImV4cCI6MjEwNDMxMDc2OH0.C_O1yzywEhDcTpWCUcL1EtqDGJj2NiHwgwbYLZBKrX4';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        function pilihAkses(peran) {
-            const btnPublik = document.getElementById('btn-publik');
+        function tampilkanFormAdmin() {
+            const form = document.getElementById('login-form');
             const btnAdmin = document.getElementById('btn-admin');
-            const secPublik = document.getElementById('section-publik');
-            const secAdmin = document.getElementById('login-form');
-
-            // Reset Style
-            btnPublik.className = "flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:border-emerald-500 transition-all text-center group";
-            btnAdmin.className = "flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:border-emerald-500 transition-all text-center group";
-
-            if (peran === 'publik') {
-                btnPublik.classList.add('border-emerald-600', 'bg-emerald-50/50', 'ring-2', 'ring-emerald-600/20');
-                secPublik.classList.remove('hidden');
-                secAdmin.classList.add('hidden');
-            } else if (peran === 'admin') {
-                btnAdmin.classList.add('border-emerald-600', 'bg-emerald-50/50', 'ring-2', 'ring-emerald-600/20');
-                secAdmin.classList.remove('hidden');
-                secPublik.classList.add('hidden');
-            }
+            
+            form.classList.remove('hidden');
+            btnAdmin.classList.add('border-emerald-600', 'bg-emerald-50/50', 'ring-2', 'ring-emerald-600/20');
+            document.getElementById('username').focus();
         }
 
-        // Default tampilkan pilihan Admin
-        pilihAkses('admin');
-
-        // Submit Form Login Admin
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btnSubmit = document.getElementById('btn-submit');
@@ -149,8 +124,7 @@
             const pass = document.getElementById('password').value;
 
             try {
-                // Cek data di tabel users
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('users')
                     .select('*')
                     .eq('username', user)
@@ -166,7 +140,7 @@
                     btnSubmit.innerHTML = `<i class="fa-solid fa-right-to-bracket text-xs"></i> <span>Masuk Portal Admin</span>`;
                 }
             } catch (err) {
-                alert('Terjadi kesalahan koneksi.');
+                alert('Username atau Password salah!');
                 btnSubmit.disabled = false;
                 btnSubmit.innerHTML = `<i class="fa-solid fa-right-to-bracket text-xs"></i> <span>Masuk Portal Admin</span>`;
             }
