@@ -3,85 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Admin - Masjid Jami' Al Hidayah</title>
-    <!-- Tailwind CSS & FontAwesome CDN -->
+    <title>Akses Portal - Masjid Jami' Al Hidayah</title>
+    <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Supabase SDK & Config -->
+    <!-- Google Font: Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
 </head>
-<body class="bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-900 text-slate-800 min-h-screen flex items-center justify-center p-4 antialiased">
 
-    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8 border border-slate-100">
-        <div class="text-center mb-8">
-            <div class="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center mx-auto text-3xl mb-3 shadow-inner">
-                <i class="fa-solid fa-user-shield"></i>
+    <!-- Background Decorative Overlay -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-emerald-600/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-teal-600/20 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Main Card Container -->
+    <div class="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 sm:p-8 space-y-6">
+        
+        <!-- Header Logo & Title -->
+        <div class="text-center space-y-2">
+            <div class="w-14 h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center mx-auto shadow-lg shadow-emerald-600/30">
+                <i class="fa-solid fa-mosque text-2xl"></i>
             </div>
-            <h2 class="text-2xl font-extrabold text-slate-800">Login Admin</h2>
-            <p class="text-sm text-slate-500 mt-1">Sistem Kas Masjid Jami' Al Hidayah</p>
+            <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Masjid Jami' Al Hidayah</h2>
+            <p class="text-xs text-slate-500 font-medium">Pilih peran akses Anda untuk melanjutkan</p>
         </div>
 
-        <form id="login-form" class="space-y-5">
-            <div>
-                <label class="block text-xs font-semibold uppercase text-slate-500 mb-2">Username</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                        <i class="fa-solid fa-user"></i>
-                    </span>
-                    <input type="text" id="username" placeholder="Masukkan username" required
-                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-slate-800 outline-none transition duration-200">
+        <!-- 2 Pilihan Akses Card -->
+        <div class="grid grid-cols-2 gap-3">
+            <!-- Pilihan 1: Publik / Jamaah -->
+            <button type="button" onclick="pilihAkses('publik')" id="btn-publik" class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:border-emerald-500 hover:bg-emerald-50/30 transition-all text-center group">
+                <div class="w-10 h-10 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center mb-2 group-hover:bg-emerald-600 group-hover:text-white transition">
+                    <i class="fa-solid fa-users text-sm"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800 group-hover:text-emerald-700">Jamaah / Donatur</span>
+                <span class="text-[10px] text-slate-400 mt-0.5">Lihat Kas Masjid</span>
+            </button>
+
+            <!-- Pilihan 2: Admin / Pengurus -->
+            <button type="button" onclick="pilihAkses('admin')" id="btn-admin" class="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:border-emerald-500 hover:bg-emerald-50/30 transition-all text-center group">
+                <div class="w-10 h-10 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center mb-2 group-hover:bg-emerald-600 group-hover:text-white transition">
+                    <i class="fa-solid fa-user-shield text-sm"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800 group-hover:text-emerald-700">Pengurus Masjid</span>
+                <span class="text-[10px] text-slate-400 mt-0.5">Login Admin</span>
+            </button>
+        </div>
+
+        <!-- Section Action 1: Redirect Ke Publik -->
+        <div id="section-publik" class="hidden text-center space-y-4 pt-2 border-t border-slate-100">
+            <p class="text-xs text-slate-600">Akses halaman transparansi laporan keuangan kas masjid secara terbuka.</p>
+            <a href="index.html" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition">
+                <span>Buka Laporan Transparansi Kas</span>
+                <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
+        </div>
+
+        <!-- Section Action 2: Form Login Admin -->
+        <form id="login-form" class="hidden space-y-4 pt-2 border-t border-slate-100">
+            <div class="text-left space-y-1">
+                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Login Pengurus Admin</h3>
+                <p class="text-[11px] text-slate-500">Masukkan username & password terdaftar.</p>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Username</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-user text-xs"></i>
+                        </span>
+                        <input type="text" id="username" required placeholder="Masukkan username" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                            <i class="fa-solid fa-lock text-xs"></i>
+                        </span>
+                        <input type="password" id="password" required placeholder="Masukkan password" class="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-emerald-500 focus:bg-white transition">
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-semibold uppercase text-slate-500 mb-2">Password</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                        <i class="fa-solid fa-lock"></i>
-                    </span>
-                    <input type="password" id="password" placeholder="••••••••" required
-                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white text-slate-800 outline-none transition duration-200">
-                </div>
-            </div>
-
-            <button type="submit"
-                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl shadow-lg shadow-emerald-600/30 transition duration-200 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-right-to-bracket"></i> Masuk Sekarang
+            <button type="submit" id="btn-submit" class="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition">
+                <i class="fa-solid fa-right-to-bracket text-xs"></i>
+                <span>Masuk Portal Admin</span>
             </button>
         </form>
 
-        <div class="mt-6 text-center">
-            <a href="index.html" class="text-xs text-slate-400 hover:text-emerald-600 transition flex items-center justify-center gap-1">
-                <i class="fa-solid fa-arrow-left"></i> Kembali ke Halaman Utama
+        <div class="text-center pt-2">
+            <a href="index.html" class="text-xs text-slate-400 hover:text-slate-600 transition font-medium">
+                <i class="fa-solid fa-house mr-1"></i> Kembali ke Beranda
             </a>
         </div>
+
     </div>
 
+    <!-- Script Logic Supabase & UI -->
     <script>
+        const supabaseUrl = 'https://khscktqunxezfeibzotr.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtoc2NrdHF1bnhlemZlaWJ6b3RyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg3MzQ3NjgsImV4cCI6MjEwNDMxMDc2OH0.C_O1yzywEhDcTpWCUcL1EtqDGJj2NiHwgwbYLZBKrX4';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        function pilihAkses(peran) {
+            const btnPublik = document.getElementById('btn-publik');
+            const btnAdmin = document.getElementById('btn-admin');
+            const secPublik = document.getElementById('section-publik');
+            const secAdmin = document.getElementById('login-form');
+
+            // Reset Style
+            btnPublik.className = "flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:border-emerald-500 transition-all text-center group";
+            btnAdmin.className = "flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/50 hover:border-emerald-500 transition-all text-center group";
+
+            if (peran === 'publik') {
+                btnPublik.classList.add('border-emerald-600', 'bg-emerald-50/50', 'ring-2', 'ring-emerald-600/20');
+                secPublik.classList.remove('hidden');
+                secAdmin.classList.add('hidden');
+            } else if (peran === 'admin') {
+                btnAdmin.classList.add('border-emerald-600', 'bg-emerald-50/50', 'ring-2', 'ring-emerald-600/20');
+                secAdmin.classList.remove('hidden');
+                secPublik.classList.add('hidden');
+            }
+        }
+
+        // Default tampilkan pilihan Admin
+        pilihAkses('admin');
+
+        // Submit Form Login Admin
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btnSubmit = document.getElementById('btn-submit');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-xs"></i> <span>Memeriksa...</span>`;
+
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
 
-            // Menggunakan variabel 'db' dari config.js
-            const { data, error } = await db
-                .from('users')
-                .select('*')
-                .eq('username', user)
-                .eq('password', pass)
-                .maybeSingle();
+            try {
+                // Cek data di tabel users
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('username', user)
+                    .eq('password', pass)
+                    .single();
 
-            if (error) {
-                alert('Terjadi kesalahan koneksi database: ' + error.message);
-                return;
-            }
-
-            if (data) {
-                sessionStorage.setItem('isAdmin', 'true');
-                window.location.href = 'admin.html';
-            } else {
-                alert('Username atau Password salah!');
+                if (data) {
+                    sessionStorage.setItem('isAdmin', 'true');
+                    window.location.href = 'admin.html';
+                } else {
+                    alert('Username atau Password salah!');
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = `<i class="fa-solid fa-right-to-bracket text-xs"></i> <span>Masuk Portal Admin</span>`;
+                }
+            } catch (err) {
+                alert('Terjadi kesalahan koneksi.');
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = `<i class="fa-solid fa-right-to-bracket text-xs"></i> <span>Masuk Portal Admin</span>`;
             }
         });
     </script>
